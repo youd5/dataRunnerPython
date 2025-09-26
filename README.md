@@ -1,51 +1,46 @@
-# My Python Project
+# dataRunnerPython
 
-A Python-based project created with Cursor.
+A simple Flask web service with a beautiful home page and API endpoint.
 
-## Getting Started
+## Features
 
-### Prerequisites
+- 🏠 Beautiful home page with modern UI
+- 🚀 Call-to-action button to trigger API
+- 🔗 RESTful API endpoint that returns "hello world"
+- 📱 Responsive design that works on all devices
 
-- Python 3.8 or higher
-- pip (Python package installer)
+## Quick Start
 
-### Installation
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-1. Clone the repository:
-```bash
-git clone <your-repo-url>
-cd my-python-project
-```
+2. Run the service:
+   ```bash
+   python src/main.py
+   ```
 
-2. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+3. Open your browser and visit:
+   ```
+   http://localhost:8080
+   ```
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+## API Endpoints
 
-### Running the Application
-
-```bash
-python src/main.py
-```
+- `GET /` - Home page with CTA button
+- `GET /api/hello` - Returns JSON: `{"message": "hello world"}`
 
 ## Project Structure
 
 ```
-my-python-project/
-├── src/                 # Source code
-│   ├── __init__.py
-│   └── main.py
-├── tests/              # Test files
-├── docs/               # Documentation
-├── requirements.txt    # Dependencies
-├── README.md          # This file
-└── .gitignore         # Git ignore file
+dataRunnerPython/
+├── src/
+│   ├── main.py              # Flask application
+│   └── templates/
+│       └── index.html       # Home page template
+├── requirements.txt         # Python dependencies
+└── README.md               # This file
 ```
 
 ## Development
