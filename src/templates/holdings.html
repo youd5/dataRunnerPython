@@ -121,96 +121,187 @@
             100% { transform: rotate(360deg); }
         }
 
-        .holdings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
+        .holdings-list {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
             margin-top: 2rem;
+            width: 100%;
+            min-width: 800px;
         }
 
-        .holding-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 1.5rem;
-            border-left: 5px solid #28a745;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        .holdings-container {
+            overflow-x: auto;
+            width: 100%;
         }
 
-        .holding-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .holding-card.negative {
-            border-left-color: #dc3545;
-        }
-
-        .holding-header {
+        .holding-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+            min-height: 60px;
+            width: 100%;
         }
 
-        .symbol {
-            font-size: 1.3rem;
+        .holding-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .holding-item:last-child {
+            border-bottom: none;
+        }
+
+        .holding-symbol {
+            flex: 0 0 240px;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            padding-left: 1.5rem;
         }
 
-        .product {
+        .holding-product {
+            flex: 0 0 80px;
             background: #e9ecef;
             color: #495057;
             padding: 0.3rem 0.8rem;
-            border-radius: 20px;
+            border-radius: 15px;
             font-size: 0.8rem;
             font-weight: 500;
-        }
-
-        .holding-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .detail-item {
             text-align: center;
         }
 
-        .detail-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.3rem;
-        }
-
-        .detail-value {
-            font-size: 1.1rem;
+        .holding-quantity {
+            flex: 0 0 80px;
+            text-align: center;
             font-weight: bold;
             color: #333;
         }
 
-        .pnl {
-            text-align: center;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-top: 1rem;
-        }
-
-        .pnl.positive {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .pnl.negative {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .pnl-value {
-            font-size: 1.5rem;
+        .holding-price {
+            flex: 0 0 100px;
+            text-align: right;
             font-weight: bold;
+            color: #333;
+            padding-right: 1.5rem;
+        }
+
+        .holding-current-price {
+            flex: 0 0 100px;
+            text-align: right;
+            font-weight: bold;
+            color: #333;
+            padding-right: 1.5rem;
+        }
+
+        .holding-value {
+            flex: 0 0 120px;
+            text-align: right;
+            font-weight: bold;
+            color: #333;
+            padding-right: 1.5rem;
+        }
+
+        .holding-pnl {
+            flex: 0 0 120px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding-right: 1.5rem;
+        }
+
+        .holding-pnl.positive {
+            color: #28a745;
+        }
+
+        .holding-pnl.negative {
+            color: #dc3545;
+        }
+
+        .list-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s ease;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .sortable-header:hover {
+            background-color: #e9ecef;
+        }
+
+        .sortable-header.sorted {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .sort-indicator {
+            margin-left: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .list-header-item {
+            display: flex;
+            align-items: center;
+            min-height: 40px;
+            width: 100%;
+        }
+
+        .list-header-symbol {
+            flex: 0 0 240px;
+            text-align: left;
+            padding-left: 1.5rem;
+        }
+
+        .list-header-product {
+            flex: 0 0 80px;
+            text-align: center;
+        }
+
+        .list-header-quantity {
+            flex: 0 0 80px;
+            text-align: center;
+        }
+
+        .list-header-price {
+            flex: 0 0 100px;
+            text-align: right;
+            padding-right: 1.5rem;
+        }
+
+        .list-header-current {
+            flex: 0 0 100px;
+            text-align: right;
+            padding-right: 1.5rem;
+        }
+
+        .list-header-value {
+            flex: 0 0 120px;
+            text-align: right;
+            padding-right: 1.5rem;
+        }
+
+        .list-header-pnl {
+            flex: 0 0 120px;
+            text-align: right;
+            padding-right: 1.5rem;
         }
 
         .no-holdings {
@@ -308,15 +399,36 @@
 
             <div id="holdingsContent" style="display: none;">
                 <div id="summary" class="summary"></div>
-                <div id="holdingsGrid" class="holdings-grid"></div>
+                <div class="holdings-container">
+                    <div id="holdingsList" class="holdings-list">
+                        <div class="list-header">
+                            <div class="list-header-item">
+                                <div class="list-header-symbol sortable-header" data-sort="tradingsymbol">Symbol<span class="sort-indicator">↕</span></div>
+                                <div class="list-header-product sortable-header" data-sort="product">Product<span class="sort-indicator">↕</span></div>
+                                <div class="list-header-quantity sortable-header" data-sort="quantity">Quantity<span class="sort-indicator">↕</span></div>
+                                <div class="list-header-price sortable-header" data-sort="average_price">Avg<span class="sort-indicator">↕</span></div>
+                                <div class="list-header-current sortable-header" data-sort="last_price">Current<span class="sort-indicator">↕</span></div>
+                                <div class="list-header-value sortable-header" data-sort="value">Value<span class="sort-indicator">↕</span></div>
+                                <div class="list-header-pnl sortable-header" data-sort="pnl">P&L<span class="sort-indicator">↕</span></div>
+                            </div>
+                        </div>
+                        <div id="holdingsListItems"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Global variables for sorting
+        let currentHoldings = [];
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+
         // Load holdings when page loads
         window.addEventListener('load', function() {
             loadHoldings();
+            setupSorting();
         });
 
         async function loadHoldings() {
@@ -358,11 +470,14 @@
 
         function displayHoldings(holdings) {
             const summary = document.getElementById('summary');
-            const holdingsGrid = document.getElementById('holdingsGrid');
+            const holdingsListItems = document.getElementById('holdingsListItems');
 
             // Calculate summary
             const totalHoldings = holdings.length;
-            const totalValue = holdings.reduce((sum, holding) => sum + (holding.average_price * holding.quantity), 0);
+            const totalValue = holdings.reduce((sum, holding) => {
+                const totalQuantity = (holding.realised_quantity || 0) + (holding.t1_quantity || 0);
+                return sum + (holding.average_price * totalQuantity);
+            }, 0);
             const totalPnl = holdings.reduce((sum, holding) => sum + holding.pnl, 0);
             const totalPnlPercent = totalValue > 0 ? (totalPnl / totalValue) * 100 : 0;
 
@@ -374,11 +489,11 @@
                 </div>
                 <div class="summary-item">
                     <div class="summary-label">Total Value</div>
-                    <div class="summary-value">₹${totalValue.toLocaleString()}</div>
+                    <div class="summary-value">₹${totalValue.toFixed(1)}</div>
                 </div>
                 <div class="summary-item">
                     <div class="summary-label">Total P&L</div>
-                    <div class="summary-value" style="color: ${totalPnl >= 0 ? '#28a745' : '#dc3545'}">₹${totalPnl.toLocaleString()}</div>
+                    <div class="summary-value" style="color: ${totalPnl >= 0 ? '#28a745' : '#dc3545'}">₹${totalPnl.toFixed(1)}</div>
                 </div>
                 <div class="summary-item">
                     <div class="summary-label">P&L %</div>
@@ -386,44 +501,105 @@
                 </div>
             `;
 
-            // Display holdings
-            holdingsGrid.innerHTML = holdings.map(holding => {
+            // Store holdings for sorting
+            currentHoldings = holdings.map(holding => {
+                const totalQuantity = (holding.realised_quantity || 0) + (holding.t1_quantity || 0);
+                return {
+                    ...holding,
+                    quantity: totalQuantity,
+                    value: holding.average_price * totalQuantity
+                };
+            });
+
+            displayHoldingsList(currentHoldings);
+        }
+
+        function displayHoldingsList(holdings) {
+            const holdingsListItems = document.getElementById('holdingsListItems');
+            
+            holdingsListItems.innerHTML = holdings.map(holding => {
                 const pnlClass = holding.pnl >= 0 ? 'positive' : 'negative';
-                const cardClass = holding.pnl >= 0 ? '' : 'negative';
                 
                 return `
-                    <div class="holding-card ${cardClass}">
-                        <div class="holding-header">
-                            <div class="symbol">${holding.tradingsymbol}</div>
-                            <div class="product">${holding.product}</div>
-                        </div>
-                        
-                        <div class="holding-details">
-                            <div class="detail-item">
-                                <div class="detail-label">Quantity</div>
-                                <div class="detail-value">${holding.quantity}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Avg Price</div>
-                                <div class="detail-value">₹${holding.average_price}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Current Price</div>
-                                <div class="detail-value">₹${holding.last_price}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Value</div>
-                                <div class="detail-value">₹${(holding.average_price * holding.quantity).toLocaleString()}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="pnl ${pnlClass}">
-                            <div class="detail-label">P&L</div>
-                            <div class="pnl-value">₹${holding.pnl.toLocaleString()}</div>
-                        </div>
+                    <div class="holding-item">
+                        <div class="holding-symbol">${holding.tradingsymbol}</div>
+                        <div class="holding-product">${holding.product}</div>
+                        <div class="holding-quantity">${holding.quantity}</div>
+                        <div class="holding-price">₹${holding.average_price.toFixed(1)}</div>
+                        <div class="holding-current-price">₹${holding.last_price.toFixed(1)}</div>
+                        <div class="holding-value">₹${holding.value.toFixed(1)}</div>
+                        <div class="holding-pnl ${pnlClass}">₹${holding.pnl.toFixed(1)}</div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function setupSorting() {
+            const sortableHeaders = document.querySelectorAll('.sortable-header');
+            
+            sortableHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const sortColumn = this.getAttribute('data-sort');
+                    sortHoldings(sortColumn);
+                });
+            });
+        }
+
+        function sortHoldings(column) {
+            // Toggle sort direction if clicking the same column
+            if (currentSortColumn === column) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortDirection = 'asc';
+            }
+
+            // Sort the holdings
+            const sortedHoldings = [...currentHoldings].sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+
+                // Handle numeric values
+                if (column === 'average_price' || column === 'last_price' || column === 'value' || column === 'pnl' || column === 'quantity') {
+                    aVal = parseFloat(aVal) || 0;
+                    bVal = parseFloat(bVal) || 0;
+                }
+
+                // Handle string values
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+
+                if (currentSortDirection === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+
+            // Update sort indicators
+            updateSortIndicators(column, currentSortDirection);
+            
+            // Display sorted holdings
+            displayHoldingsList(sortedHoldings);
+        }
+
+        function updateSortIndicators(column, direction) {
+            const sortableHeaders = document.querySelectorAll('.sortable-header');
+            
+            sortableHeaders.forEach(header => {
+                const sortColumn = header.getAttribute('data-sort');
+                const indicator = header.querySelector('.sort-indicator');
+                
+                if (sortColumn === column) {
+                    header.classList.add('sorted');
+                    indicator.textContent = direction === 'asc' ? '↑' : '↓';
+                } else {
+                    header.classList.remove('sorted');
+                    indicator.textContent = '↕';
+                }
+            });
         }
 
         function logout() {
