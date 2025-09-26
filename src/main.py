@@ -77,6 +77,11 @@ def positions():
     """Render the positions page."""
     return render_template('positions.html')
 
+@app.route('/algorithm-triggered')
+def algorithm_triggered():
+    """Render the algorithm triggered page."""
+    return render_template('algorithm_triggered.html')
+
 @app.route('/api/hello')
 def hello_api():
     """API endpoint that returns hello world."""
