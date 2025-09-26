@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holdings - dataRunnerPython</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+
+        .btn-logout {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 53, 67, 0.4);
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 67, 0.6);
+        }
+
+        .holdings-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .holdings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .holding-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border-left: 5px solid #28a745;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .holding-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .holding-card.negative {
+            border-left-color: #dc3545;
+        }
+
+        .holding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .symbol {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .product {
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .holding-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .pnl {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .pnl.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .pnl.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .pnl-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .no-holdings {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 3rem;
+            color: #dc3545;
+        }
+
+        .summary {
+            background: #e3f2fd;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .holdings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .holding-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 My Holdings</h1>
+            <p>View your current stock holdings and portfolio performance</p>
+            
+            <div class="nav-buttons">
+                <a href="/" class="btn btn-primary">🏠 Home</a>
+                <a href="/positions" class="btn btn-secondary">📊 Positions</a>
+                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <div class="holdings-container">
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading your holdings...</p>
+            </div>
+
+            <div id="error" class="error" style="display: none;">
+                <h3>❌ Error Loading Holdings</h3>
+                <p id="errorMessage"></p>
+                <button class="btn btn-primary" onclick="loadHoldings()" style="margin-top: 1rem;">🔄 Retry</button>
+            </div>
+
+            <div id="noHoldings" class="no-holdings" style="display: none;">
+                <h3>📭 No Holdings Found</h3>
+                <p>You don't have any holdings in your portfolio.</p>
+            </div>
+
+            <div id="holdingsContent" style="display: none;">
+                <div id="summary" class="summary"></div>
+                <div id="holdingsGrid" class="holdings-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load holdings when page loads
+        window.addEventListener('load', function() {
+            loadHoldings();
+        });
+
+        async function loadHoldings() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const noHoldings = document.getElementById('noHoldings');
+            const holdingsContent = document.getElementById('holdingsContent');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Show loading state
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            noHoldings.style.display = 'none';
+            holdingsContent.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/kite/holdings');
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    const holdings = data.holdings;
+                    
+                    if (holdings && holdings.length > 0) {
+                        displayHoldings(holdings);
+                        holdingsContent.style.display = 'block';
+                    } else {
+                        noHoldings.style.display = 'block';
+                    }
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (err) {
+                errorMessage.textContent = err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayHoldings(holdings) {
+            const summary = document.getElementById('summary');
+            const holdingsGrid = document.getElementById('holdingsGrid');
+
+            // Calculate summary
+            const totalHoldings = holdings.length;
+            const totalValue = holdings.reduce((sum, holding) => sum + (holding.average_price * holding.quantity), 0);
+            const totalPnl = holdings.reduce((sum, holding) => sum + holding.pnl, 0);
+            const totalPnlPercent = totalValue > 0 ? (totalPnl / totalValue) * 100 : 0;
+
+            // Display summary
+            summary.innerHTML = `
+                <div class="summary-item">
+                    <div class="summary-label">Total Holdings</div>
+                    <div class="summary-value">${totalHoldings}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Value</div>
+                    <div class="summary-value">₹${totalValue.toLocaleString()}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total P&L</div>
+                    <div class="summary-value" style="color: ${totalPnl >= 0 ? '#28a745' : '#dc3545'}">₹${totalPnl.toLocaleString()}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">P&L %</div>
+                    <div class="summary-value" style="color: ${totalPnlPercent >= 0 ? '#28a745' : '#dc3545'}">${totalPnlPercent.toFixed(2)}%</div>
+                </div>
+            `;
+
+            // Display holdings
+            holdingsGrid.innerHTML = holdings.map(holding => {
+                const pnlClass = holding.pnl >= 0 ? 'positive' : 'negative';
+                const cardClass = holding.pnl >= 0 ? '' : 'negative';
+                
+                return `
+                    <div class="holding-card ${cardClass}">
+                        <div class="holding-header">
+                            <div class="symbol">${holding.tradingsymbol}</div>
+                            <div class="product">${holding.product}</div>
+                        </div>
+                        
+                        <div class="holding-details">
+                            <div class="detail-item">
+                                <div class="detail-label">Quantity</div>
+                                <div class="detail-value">${holding.quantity}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Avg Price</div>
+                                <div class="detail-value">₹${holding.average_price}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Current Price</div>
+                                <div class="detail-value">₹${holding.last_price}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Value</div>
+                                <div class="detail-value">₹${(holding.average_price * holding.quantity).toLocaleString()}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="pnl ${pnlClass}">
+                            <div class="detail-label">P&L</div>
+                            <div class="pnl-value">₹${holding.pnl.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function logout() {
+            fetch('/api/kite/logout', { method: 'POST' })
+                .then(() => {
+                    window.location.href = '/';
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    window.location.href = '/';
+                });
+        }
+    </script>
+</body>
+</html>

@@ -67,6 +67,16 @@ def home():
     """Render the home page with CTA button."""
     return render_template('index.html')
 
+@app.route('/holdings')
+def holdings():
+    """Render the holdings page."""
+    return render_template('holdings.html')
+
+@app.route('/positions')
+def positions():
+    """Render the positions page."""
+    return render_template('positions.html')
+
 @app.route('/api/hello')
 def hello_api():
     """API endpoint that returns hello world."""
@@ -102,6 +112,16 @@ def generate_session():
         return jsonify(result)
     else:
         return jsonify(result), 400
+
+@app.route('/api/kite/logout', methods=['POST'])
+def logout():
+    """Clear the access token from .env file."""
+    try:
+        # Clear the access token by setting it to empty
+        save_token_to_env('')
+        return jsonify({"success": True, "message": "Logged out successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/apis/broker/login/zerodha')
 def kite_callback():

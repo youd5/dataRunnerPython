@@ -85,6 +85,17 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
 
+        .cta-button.logout {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 53, 67, 0.4);
+        }
+
+        .cta-button.logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 67, 0.6);
+        }
+
         .cta-button:active {
             transform: translateY(0);
         }
@@ -171,9 +182,10 @@
 <body>
     <div class="container">
         <h1>🚀 dataRunnerPython</h1>
-        <p>Welcome to dataRunnerPython web service with Zerodha Kite integration! Get started by logging into your Zerodha account or test the API.</p>
+        <p id="welcomeText">Welcome to dataRunnerPython web service with Zerodha Kite integration! Get started by logging into your Zerodha account.</p>
         
-        <div class="button-group">
+        <!-- Login Section (shown when not logged in) -->
+        <div class="button-group" id="loginSection">
             <button class="cta-button primary" onclick="loginToZerodha()" id="zerodhaButton">
                 🔐 Login to Zerodha
             </button>
@@ -183,12 +195,88 @@
             </button>
         </div>
         
+        <!-- Trading Section (shown when logged in) -->
+        <div class="button-group" id="tradingSection" style="display: none;">
+            <button class="cta-button primary" onclick="getHoldings()" id="holdingsButton">
+                💰 HOLDINGS
+            </button>
+            
+            <button class="cta-button secondary" onclick="getPositions()" id="positionsButton">
+                📊 POSITIONS
+            </button>
+            
+            <button class="cta-button logout" onclick="logout()" id="logoutButton" style="background: linear-gradient(45deg, #dc3545, #c82333); box-shadow: 0 4px 15px rgba(220, 53, 67, 0.4);">
+                🚪 Logout
+            </button>
+        </div>
+        
         <div class="response-container" id="responseContainer">
             <div class="response-text" id="responseText"></div>
         </div>
     </div>
 
     <script>
+        // Check login status on page load
+        window.addEventListener('load', function() {
+            checkLoginStatus();
+        });
+
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/kite/profile');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // User is logged in
+                    showTradingSection();
+                } else {
+                    // User is not logged in
+                    showLoginSection();
+                }
+            } catch (error) {
+                // User is not logged in
+                showLoginSection();
+            }
+        }
+
+        function showLoginSection() {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('tradingSection').style.display = 'none';
+            document.getElementById('welcomeText').textContent = 'Welcome to dataRunnerPython web service with Zerodha Kite integration! Get started by logging into your Zerodha account.';
+        }
+
+        function showTradingSection() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('tradingSection').style.display = 'flex';
+            document.getElementById('welcomeText').textContent = 'Welcome back! You are logged in to Zerodha Kite. Check your holdings and positions below.';
+        }
+
+        function logout() {
+            // Clear the access token from .env file by setting it to empty
+            fetch('/api/kite/logout', { method: 'POST' })
+                .then(() => {
+                    // Show login section
+                    showLoginSection();
+                    // Clear any response
+                    document.getElementById('responseContainer').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    // Still show login section even if logout fails
+                    showLoginSection();
+                });
+        }
+
+        function getHoldings() {
+            // Redirect to holdings page
+            window.location.href = '/holdings';
+        }
+
+        function getPositions() {
+            // Redirect to positions page
+            window.location.href = '/positions';
+        }
+
         async function loginToZerodha() {
             const button = document.getElementById('zerodhaButton');
             const responseContainer = document.getElementById('responseContainer');
