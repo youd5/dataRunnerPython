@@ -1,2 +1,4 @@
 # Core dependencies
 Flask>=2.3.0
+kiteconnect>=4.0.0
+python-dotenv>=1.0.0

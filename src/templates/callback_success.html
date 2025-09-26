@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Successful - dataRunnerPython</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 3rem;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .user-info h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .user-info p {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .token-container {
+            background: #e8f5e8;
+            border: 1px solid #27ae60;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            word-break: break-all;
+        }
+
+        .token-container h3 {
+            color: #27ae60;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .token-value {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .copy-button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: #219a52;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 1rem;
+        }
+
+        .instructions ol {
+            color: #856404;
+            margin-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>Login Successful!</h1>
+        <p>You have successfully authenticated with Zerodha Kite.</p>
+        
+        <div class="user-info">
+            <h3>👤 User Information</h3>
+            <p><strong>User ID:</strong> {{ user_info.user_id if user_info.user_id != 'Not available' else 'Not provided' }}</p>
+            <p><strong>Name:</strong> {{ user_info.user_name if user_info.user_name != 'Not available' else 'Not provided' }}</p>
+            <p><strong>Email:</strong> {{ user_info.user_email if user_info.user_email != 'Not available' else 'Not provided' }}</p>
+        </div>
+
+        <div class="token-container">
+            <h3>🔑 Access Token</h3>
+            <div class="token-value" id="accessToken">{{ access_token }}</div>
+            <button class="copy-button" onclick="copyToken()">📋 Copy Token</button>
+        </div>
+
+        <div class="instructions">
+            <h3>📝 Next Steps</h3>
+            <ol>
+                <li>The access token has been automatically saved to your <code>.env</code> file</li>
+                <li>Restart your application to use the new token</li>
+                <li>Start using the Kite API endpoints!</li>
+            </ol>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/" class="btn btn-primary">🏠 Back to Home</a>
+            <a href="/api/kite/profile" class="btn btn-secondary" target="_blank">👤 View Profile</a>
+        </div>
+    </div>
+
+    <script>
+        function copyToken() {
+            const tokenElement = document.getElementById('accessToken');
+            const token = tokenElement.textContent;
+            
+            navigator.clipboard.writeText(token).then(function() {
+                const button = document.querySelector('.copy-button');
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.style.background = '#27ae60';
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '#27ae60';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Could not copy token. Please copy manually.');
+            });
+        }
+    </script>
+</body>
+</html>

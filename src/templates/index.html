@@ -44,20 +44,43 @@
             line-height: 1.6;
         }
 
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
         .cta-button {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
             border: none;
             padding: 1rem 2rem;
             font-size: 1.1rem;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             font-weight: 500;
+            min-width: 180px;
         }
 
-        .cta-button:hover {
+        .cta-button.primary {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .cta-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+
+        .cta-button.secondary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .cta-button.secondary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
@@ -121,16 +144,44 @@
         .error .response-text {
             color: #e74c3c;
         }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .cta-button {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🚀 dataRunnerPython</h1>
-        <p>Welcome to dataRunnerPython web service! Click the button below to trigger the API and see the magic happen.</p>
+        <p>Welcome to dataRunnerPython web service with Zerodha Kite integration! Get started by logging into your Zerodha account or test the API.</p>
         
-        <button class="cta-button" onclick="callAPI()" id="ctaButton">
-            Call Hello World API
-        </button>
+        <div class="button-group">
+            <button class="cta-button primary" onclick="loginToZerodha()" id="zerodhaButton">
+                🔐 Login to Zerodha
+            </button>
+            
+            <button class="cta-button secondary" onclick="callAPI()" id="apiButton">
+                🚀 Test API
+            </button>
+        </div>
         
         <div class="response-container" id="responseContainer">
             <div class="response-text" id="responseText"></div>
@@ -138,8 +189,38 @@
     </div>
 
     <script>
+        async function loginToZerodha() {
+            const button = document.getElementById('zerodhaButton');
+            const responseContainer = document.getElementById('responseContainer');
+            const responseText = document.getElementById('responseText');
+            
+            // Disable button and show loading
+            button.disabled = true;
+            button.innerHTML = '<span class="loading"></span>Getting Login URL...';
+            responseContainer.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/kite/login-url');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Redirect to Zerodha login URL in the same tab
+                    window.location.href = data.login_url;
+                } else {
+                    throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                responseText.textContent = `Error: ${error.message}`;
+                responseContainer.className = 'response-container show error';
+            } finally {
+                // Re-enable button
+                button.disabled = false;
+                button.innerHTML = '🔐 Login to Zerodha';
+            }
+        }
+
         async function callAPI() {
-            const button = document.getElementById('ctaButton');
+            const button = document.getElementById('apiButton');
             const responseContainer = document.getElementById('responseContainer');
             const responseText = document.getElementById('responseText');
             
@@ -164,7 +245,7 @@
             } finally {
                 // Re-enable button
                 button.disabled = false;
-                button.innerHTML = 'Call Hello World API';
+                button.innerHTML = '🚀 Test API';
             }
         }
     </script>
