@@ -429,6 +429,40 @@ def get_order_history(order_id):
     else:
         return jsonify(result), 400
 
+@app.route('/api/kite/historical-data', methods=['POST'])
+def get_historical_data():
+    """Get historical data for an instrument."""
+    if not kite_service:
+        return jsonify({"error": "Kite service not initialized"}), 500
+    
+    data = request.get_json()
+    instrument_token = data.get('instrument_token')
+    from_date = data.get('from_date')
+    to_date = data.get('to_date')
+    interval = data.get('interval', 'day')
+    continuous = data.get('continuous', False)
+    oi = data.get('oi', False)
+    
+    if not instrument_token:
+        return jsonify({"error": "instrument_token is required"}), 400
+    
+    if not from_date or not to_date:
+        return jsonify({"error": "from_date and to_date are required"}), 400
+    
+    result = kite_service.historical_data(
+        instrument_token=instrument_token,
+        from_date=from_date,
+        to_date=to_date,
+        interval=interval,
+        continuous=continuous,
+        oi=oi
+    )
+    
+    if result['success']:
+        return jsonify(result)
+    else:
+        return jsonify(result), 400
+
 def main():
     """Main function to run the Flask application."""
     print("Starting Flask web service with Zerodha Kite integration...")

@@ -377,3 +377,81 @@ class KiteService:
                 'success': False,
                 'error': str(e)
             }
+    
+    def historical_data(self, instrument_token: int, from_date: str, to_date: str, 
+                       interval: str, continuous: bool = False, oi: bool = False) -> Dict[str, Any]:
+        """
+        Fetch historical data for an instrument.
+        
+        Args:
+            instrument_token (int): Instrument token (e.g., 738561 for NIFTY 50)
+            from_date (str): From date (yyyy-mm-dd)
+            to_date (str): To date (yyyy-mm-dd)
+            interval (str): Data interval. Valid values:
+                - "minute", "3minute", "5minute", "10minute", "15minute", "30minute", "60minute"
+                - "day"
+            continuous (bool): If True, returns continuous contract data. Default: False
+            oi (bool): If True, returns open interest data. Default: False
+            
+        Returns:
+            Dict[str, Any]: Historical data response with success status and data
+        """
+        try:
+            # Validate required parameters
+            if not instrument_token:
+                return {
+                    'success': False,
+                    'error': 'instrument_token is required'
+                }
+            
+            if not from_date or not to_date:
+                return {
+                    'success': False,
+                    'error': 'from_date and to_date are required'
+                }
+            
+            if not interval:
+                return {
+                    'success': False,
+                    'error': 'interval is required'
+                }
+            
+            # Validate interval values
+            valid_intervals = [
+                "minute", "3minute", "5minute", "10minute", "15minute", 
+                "30minute", "60minute", "day"
+            ]
+            if interval not in valid_intervals:
+                return {
+                    'success': False,
+                    'error': f'Invalid interval. Valid values: {", ".join(valid_intervals)}'
+                }
+            
+            # Fetch historical data from Kite API
+            historical_data = self.kite.historical_data(
+                instrument_token=instrument_token,
+                from_date=from_date,
+                to_date=to_date,
+                interval=interval,
+                continuous=continuous,
+                oi=oi
+            )
+            
+            return {
+                'success': True,
+                'data': historical_data,
+                'instrument_token': instrument_token,
+                'from_date': from_date,
+                'to_date': to_date,
+                'interval': interval,
+                'continuous': continuous,
+                'oi': oi,
+                'count': len(historical_data) if historical_data else 0
+            }
+            
+        except Exception as e:
+            print(f"Error fetching historical data: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
