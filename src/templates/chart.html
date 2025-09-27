@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Chart - dataRunnerPython</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            padding: 2rem 0 2rem 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .page-header {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid #e1e5e9;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .symbol-info {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .symbol-info h3 {
+            color: #495057;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .symbol-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .detail-value.positive {
+            color: #28a745;
+        }
+
+        .detail-value.negative {
+            color: #dc3545;
+        }
+
+        .quote-section {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e1e5e9;
+        }
+
+        .quote-section h3 {
+            color: #495057;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .quote-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .quote-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .quote-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .quote-card.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .quote-card.primary .quote-label {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .quote-card.primary .quote-value {
+            color: white;
+        }
+
+        .quote-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quote-value {
+            font-size: 1.4rem;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        .quote-value.positive {
+            color: #28a745;
+        }
+
+        .quote-value.negative {
+            color: #dc3545;
+        }
+
+        .loading-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2c3e50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .error-section {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #2c3e50;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: #34495e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .page-header {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .quote-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .symbol-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .symbol-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include floating header -->
+    <div id="header-placeholder"></div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1 id="pageTitle">📊 Stock Chart</h1>
+            <div class="symbol-info">
+                <h3>Stock Information</h3>
+                <div class="symbol-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Symbol</div>
+                        <div class="detail-value" id="stockSymbol">Loading...</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Exchange</div>
+                        <div class="detail-value" id="stockExchange">NSE</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Last Updated</div>
+                        <div class="detail-value" id="lastUpdated">Loading...</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value" id="dataStatus">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quote-section">
+            <h3 id="quoteTitle">📈 Live Quote Data</h3>
+            
+            <div id="loadingSection" class="loading-section">
+                <div class="loading-spinner"></div>
+                <p>Fetching live quote data...</p>
+            </div>
+            
+            <div id="errorSection" class="error-section" style="display: none;">
+                <h3>❌ Error Loading Data</h3>
+                <p id="errorMessage">Failed to fetch quote data. Please check the symbol and try again.</p>
+            </div>
+            
+            <div id="quoteData" class="quote-grid" style="display: none;">
+                <!-- Quote data will be populated here -->
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button onclick="refreshData()" class="btn btn-primary">🔄 Refresh Data</button>
+            <a href="/holdings" class="btn btn-secondary">💰 Holdings</a>
+            <a href="/positions" class="btn btn-secondary">📊 Positions</a>
+        </div>
+    </div>
+
+    <script>
+        let currentSymbol = null;
+
+        // Load header component
+        async function loadHeader() {
+            try {
+                const response = await fetch('/static/components/header.html');
+                const headerHtml = await response.text();
+                document.getElementById('header-placeholder').innerHTML = headerHtml;
+            } catch (error) {
+                console.error('Error loading header:', error);
+            }
+        }
+
+        // Get symbol from URL parameters
+        function getSymbolFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('symbol');
+        }
+
+        // Initialize page when loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHeader().then(() => {
+                currentSymbol = getSymbolFromURL();
+                if (currentSymbol) {
+                    initializePage();
+                } else {
+                    showError('No symbol provided in URL. Please use: /chart/?symbol=SYMBOL');
+                }
+            });
+        });
+
+        function initializePage() {
+            // Update page title and symbol display
+            document.getElementById('pageTitle').textContent = `📊 ${currentSymbol} Chart`;
+            document.getElementById('stockSymbol').textContent = currentSymbol;
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            document.title = `${currentSymbol} Chart - dataRunnerPython`;
+            
+            // Fetch quote data
+            fetchQuoteData();
+        }
+
+        async function fetchQuoteData() {
+            const loadingSection = document.getElementById('loadingSection');
+            const errorSection = document.getElementById('errorSection');
+            const quoteData = document.getElementById('quoteData');
+            
+            // Show loading state
+            loadingSection.style.display = 'block';
+            errorSection.style.display = 'none';
+            quoteData.style.display = 'none';
+            document.getElementById('dataStatus').textContent = 'Loading...';
+            document.getElementById('dataStatus').className = 'detail-value';
+            
+            try {
+                const response = await fetch('/api/kite/quote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        instruments: [currentSymbol]
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.quotes && data.quotes[currentSymbol]) {
+                    displayQuoteData(data.quotes[currentSymbol]);
+                    document.getElementById('dataStatus').textContent = 'Success';
+                    document.getElementById('dataStatus').className = 'detail-value positive';
+                } else {
+                    throw new Error(data.error || 'Failed to fetch quote data');
+                }
+            } catch (error) {
+                console.error('Error fetching quote:', error);
+                showError(`Error: ${error.message}`);
+                document.getElementById('dataStatus').textContent = 'Failed';
+                document.getElementById('dataStatus').className = 'detail-value negative';
+            }
+        }
+
+        function displayQuoteData(quote) {
+            const loadingSection = document.getElementById('loadingSection');
+            const quoteData = document.getElementById('quoteData');
+            
+            // Hide loading and show data
+            loadingSection.style.display = 'none';
+            quoteData.style.display = 'grid';
+            
+            // Format the quote data
+            const formatCurrency = (value) => {
+                return value ? `₹${parseFloat(value).toFixed(2)}` : 'N/A';
+            };
+            
+            const formatNumber = (value) => {
+                return value ? parseFloat(value).toFixed(2) : 'N/A';
+            };
+            
+            const formatPercent = (value) => {
+                if (!value) return 'N/A';
+                const percent = parseFloat(value).toFixed(2);
+                return `${percent > 0 ? '+' : ''}${percent}%`;
+            };
+            
+            const getValueClass = (value) => {
+                if (!value) return '';
+                return parseFloat(value) >= 0 ? 'positive' : 'negative';
+            };
+            
+            // Update last updated time
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            
+            quoteData.innerHTML = `
+                <div class="quote-card primary">
+                    <div class="quote-label">Current Price</div>
+                    <div class="quote-value">${formatCurrency(quote.last_price)}</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-label">Open</div>
+                    <div class="quote-value">${formatCurrency(quote.open)}</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-label">High</div>
+                    <div class="quote-value">${formatCurrency(quote.high)}</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-label">Low</div>
+                    <div class="quote-value">${formatCurrency(quote.low)}</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-label">Close</div>
+                    <div class="quote-value">${formatCurrency(quote.close)}</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-label">Volume</div>
+                    <div class="quote-value">${quote.volume ? quote.volume.toLocaleString() : 'N/A'}</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-label">Change</div>
+                    <div class="quote-value ${getValueClass(quote.net_change)}">${formatCurrency(quote.net_change)}</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-label">Change %</div>
+                    <div class="quote-value ${getValueClass(quote.net_change)}">${formatPercent(quote.change_percent)}</div>
+                </div>
+                <div class="quote-card">
+                    <div class="quote-label">Open Interest</div>
+                    <div class="quote-value">${quote.oi ? quote.oi.toLocaleString() : 'N/A'}</div>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const loadingSection = document.getElementById('loadingSection');
+            const errorSection = document.getElementById('errorSection');
+            const quoteData = document.getElementById('quoteData');
+            
+            loadingSection.style.display = 'none';
+            errorSection.style.display = 'block';
+            quoteData.style.display = 'none';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        function refreshData() {
+            if (currentSymbol) {
+                fetchQuoteData();
+            }
+        }
+    </script>
+</body>
+</html>

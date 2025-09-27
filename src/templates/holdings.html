@@ -174,12 +174,19 @@
             flex: 0 0 240px;
             font-size: 1.2rem;
             font-weight: bold;
-            color: #333;
+            color: #007bff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: left;
             padding-left: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .holding-symbol:hover {
+            color: #0056b3;
+            text-decoration: underline;
         }
 
         .holding-product {
@@ -552,7 +559,7 @@
                 
                 return `
                     <div class="holding-item">
-                        <div class="holding-symbol">${holding.tradingsymbol}</div>
+                        <div class="holding-symbol" onclick="viewChart('${holding.tradingsymbol}')" title="Click to view chart">${holding.tradingsymbol}</div>
                         <div class="holding-product">${holding.product}</div>
                         <div class="holding-quantity">${holding.quantity}</div>
                         <div class="holding-price">₹${holding.average_price.toFixed(1)}</div>
@@ -667,6 +674,10 @@
                 console.error('Error:', error);
                 alert('Error triggering algorithm: ' + error.message);
             }
+        }
+
+        function viewChart(symbol) {
+            window.open(`/chart/?symbol=${symbol}`, '_blank');
         }
     </script>
 </body>

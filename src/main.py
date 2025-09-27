@@ -82,6 +82,11 @@ def algorithm_triggered():
     """Render the algorithm triggered page."""
     return render_template('algorithm_triggered.html')
 
+@app.route('/chart/')
+def chart():
+    """Render the chart page for stock quotes."""
+    return render_template('chart.html')
+
 @app.route('/static/components/header.html')
 def header_component():
     """Serve the header component."""
