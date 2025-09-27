@@ -138,3 +138,6 @@ dmypy.json
 # OS
 .DS_Store
 Thumbs.db
+
+#results folder
+results

@@ -5,8 +5,10 @@ Filter1: Fetches instruments and historical data for analysis.
 
 import sys
 import os
+import pandas as pd
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
+
 
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -63,7 +65,9 @@ class Filter1:
             # Calculate date range (today - 8 days to today)
             end_date = datetime.now().strftime("%Y-%m-%d")
             start_date = (datetime.now() - timedelta(days=8)).strftime("%Y-%m-%d")
-            
+            resultFrame = pd.DataFrame(columns=['Symbol', 'name', 'token', "weekAvgVol"])
+            count = 0
+            max_instruments = 30
             print(f"📅 Date range: {start_date} to {end_date}")
             print(f"🔄 Processing up to {max_instruments} instruments...")
             
@@ -105,6 +109,22 @@ class Filter1:
                         
                         if historical_result['success']:
                             print(f"   ✅ Historical data fetched: {historical_result['count']} data points")
+
+                            historyData = pd.DataFrame(historical_result['data'])
+
+                            weekAvgVol = round(historyData["volume"].mean(), 2)
+                            weekAvgClose = round(historyData["close"].mean(), 2)
+                            print("weekAvgVol, weekAvgClose", weekAvgVol, weekAvgClose)
+                            # skip scripts with Volume less than 300000
+                            if weekAvgVol > 200000:
+                                print("skipping low volume -- " + trading_symbol)
+                                continue
+                            if weekAvgClose < 30:
+                                print("skipping low price -- " + trading_symbol)
+                                continue
+                            print("adding data to resultFrame -- " + trading_symbol)
+                            resultFrame.loc[count] = [trading_symbol, trading_symbol, str(instrument_token), weekAvgVol]
+                            count += 1
                             
                             # Store historical data result
                             historical_data_results.append({
@@ -143,8 +163,19 @@ class Filter1:
                 except Exception as e:
                     print(f"   ❌ Error processing instrument: {e}")
                     continue
-            
+            print("resultFrame", resultFrame)
             print("historical_data_results", historical_data_results)
+            
+            # Create results directory if it doesn't exist
+            results_dir = "results"
+            if not os.path.exists(results_dir):
+                os.makedirs(results_dir)
+                print(f"📁 Created directory: {results_dir}")
+            
+            # Save results to CSV
+            csv_filename = f"results/firstFIlterResults-{str(end_date)[0:10]}.csv"
+            resultFrame.to_csv(csv_filename, index=False)
+            print(f"💾 Results saved to: {csv_filename}")
             # Return comprehensive results
             return {
                 'success': True,
