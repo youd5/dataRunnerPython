@@ -75,6 +75,77 @@
             margin-bottom: 0.5rem;
         }
 
+        .quote-section {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .quote-section h3 {
+            color: #495057;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .quote-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .quote-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .quote-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .quote-value {
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .quote-value.positive {
+            color: #28a745;
+        }
+
+        .quote-value.negative {
+            color: #dc3545;
+        }
+
+        .loading-quote {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2c3e50;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .nav-buttons {
             display: flex;
             gap: 1rem;
@@ -166,7 +237,20 @@
                 <p><strong>Stock Symbol:</strong> RELIANCE</p>
                 <p><strong>Trigger Time:</strong> <span id="triggerTime"></span></p>
                 <p><strong>Status:</strong> <span style="color: #28a745; font-weight: 600;">Active</span></p>
-                <p><strong>Quote Retrieved:</strong> <span style="color: #28a745; font-weight: 600;">Success</span></p>
+                <p><strong>Quote Retrieved:</strong> <span id="quoteStatus" style="color: #6c757d; font-weight: 600;">Loading...</span></p>
+            </div>
+            
+            <div class="quote-section">
+                <h3>📈 RELIANCE Quote Data</h3>
+                <div id="quoteLoading" class="loading-quote">
+                    <span class="loading-spinner"></span>Fetching latest quote data...
+                </div>
+                <div id="quoteData" class="quote-data" style="display: none;">
+                    <!-- Quote data will be populated here -->
+                </div>
+                <div id="quoteError" style="display: none; text-align: center; color: #dc3545; padding: 1rem;">
+                    <p>❌ Failed to fetch quote data. Please try again.</p>
+                </div>
             </div>
             
             <div class="nav-buttons">
@@ -179,8 +263,119 @@
     </div>
 
     <script>
-        // Set the current time
-        document.getElementById('triggerTime').textContent = new Date().toLocaleString();
+        // Set the current time and fetch quote data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('triggerTime').textContent = new Date().toLocaleString();
+            fetchQuoteData();
+        });
+
+        async function fetchQuoteData() {
+            try {
+                const response = await fetch('/api/kite/quote', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        instruments: ['RELIANCE']
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.quotes && data.quotes.RELIANCE) {
+                    displayQuoteData(data.quotes.RELIANCE);
+                    document.getElementById('quoteStatus').textContent = 'Success';
+                    document.getElementById('quoteStatus').style.color = '#28a745';
+                } else {
+                    throw new Error(data.error || 'Failed to fetch quote data');
+                }
+            } catch (error) {
+                console.error('Error fetching quote:', error);
+                showQuoteError();
+                document.getElementById('quoteStatus').textContent = 'Failed';
+                document.getElementById('quoteStatus').style.color = '#dc3545';
+            }
+        }
+
+        function displayQuoteData(quote) {
+            const quoteData = document.getElementById('quoteData');
+            const quoteLoading = document.getElementById('quoteLoading');
+            
+            // Hide loading and show data
+            quoteLoading.style.display = 'none';
+            quoteData.style.display = 'grid';
+            
+            // Format the quote data
+            const formatCurrency = (value) => {
+                return value ? `₹${parseFloat(value).toFixed(2)}` : 'N/A';
+            };
+            
+            const formatNumber = (value) => {
+                return value ? parseFloat(value).toFixed(2) : 'N/A';
+            };
+            
+            const formatPercent = (value) => {
+                if (!value) return 'N/A';
+                const percent = parseFloat(value).toFixed(2);
+                return `${percent > 0 ? '+' : ''}${percent}%`;
+            };
+            
+            const getValueClass = (value) => {
+                if (!value) return '';
+                return parseFloat(value) >= 0 ? 'positive' : 'negative';
+            };
+            
+            quoteData.innerHTML = `
+                <div class="quote-item">
+                    <div class="quote-label">Last Price</div>
+                    <div class="quote-value">${formatCurrency(quote.last_price)}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">Open</div>
+                    <div class="quote-value">${formatCurrency(quote.open)}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">High</div>
+                    <div class="quote-value">${formatCurrency(quote.high)}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">Low</div>
+                    <div class="quote-value">${formatCurrency(quote.low)}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">Close</div>
+                    <div class="quote-value">${formatCurrency(quote.close)}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">Volume</div>
+                    <div class="quote-value">${quote.volume ? quote.volume.toLocaleString() : 'N/A'}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">Change</div>
+                    <div class="quote-value ${getValueClass(quote.net_change)}">${formatCurrency(quote.net_change)}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">Change %</div>
+                    <div class="quote-value ${getValueClass(quote.net_change)}">${formatPercent(quote.change_percent)}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">OI</div>
+                    <div class="quote-value">${quote.oi ? quote.oi.toLocaleString() : 'N/A'}</div>
+                </div>
+                <div class="quote-item">
+                    <div class="quote-label">Timestamp</div>
+                    <div class="quote-value">${quote.timestamp ? new Date(quote.timestamp).toLocaleString() : 'N/A'}</div>
+                </div>
+            `;
+        }
+
+        function showQuoteError() {
+            const quoteLoading = document.getElementById('quoteLoading');
+            const quoteError = document.getElementById('quoteError');
+            
+            quoteLoading.style.display = 'none';
+            quoteError.style.display = 'block';
+        }
 
         function triggerAgain() {
             window.location.href = '/holdings';

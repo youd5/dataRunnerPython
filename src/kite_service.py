@@ -15,6 +15,11 @@ load_dotenv()
 class KiteService:
     """Service class for Zerodha Kite API integration."""
     
+    # Class-level variables for caching instruments data
+    _instruments_list = None
+    _symbol_to_instrument_map = None
+    _token_to_instrument_map = None
+    
     def __init__(self):
         """Initialize Kite service with API credentials."""
         self.api_key = os.getenv('KITE_API_KEY')
@@ -131,26 +136,122 @@ class KiteService:
             }
     
     def get_instruments(self, exchange: Optional[str] = None) -> Dict[str, Any]:
-        """Get instruments list."""
+        """Get instruments list with caching and mapping functionality."""
         try:
-            instruments = self.kite.instruments(exchange)
+            # Use cached data if available
+            if KiteService._instruments_list is not None:
+                return {
+                    'success': True,
+                    'instruments': KiteService._instruments_list,
+                    'symbol_to_instrument_map': KiteService._symbol_to_instrument_map,
+                    'token_to_instrument_map': KiteService._token_to_instrument_map
+                }
+            
+            print('Fetching instruments from Kite API...')
+            
+            # Fetch fresh data from API
+            instruments = self.kite.instruments(exchange or 'NSE')
+            
+            # Cache the data
+            KiteService._instruments_list = instruments
+            KiteService._symbol_to_instrument_map = {}
+            KiteService._token_to_instrument_map = {}
+            
+            # Build mapping dictionaries
+            for instrument in instruments:
+                trading_symbol = instrument.get('tradingsymbol')
+                instrument_token = instrument.get('instrument_token')
+                
+                if trading_symbol:
+                    KiteService._symbol_to_instrument_map[trading_symbol] = instrument
+                if instrument_token:
+                    KiteService._token_to_instrument_map[instrument_token] = instrument
+            
+            print(f'Instruments fetched successfully. Count: {len(instruments)}')
+            
             return {
                 'success': True,
-                'instruments': instruments
+                'instruments': instruments,
+                'symbol_to_instrument_map': KiteService._symbol_to_instrument_map,
+                'token_to_instrument_map': KiteService._token_to_instrument_map
             }
         except Exception as e:
+            print(f"Error while fetching instruments: {e}")
             return {
                 'success': False,
                 'error': str(e)
             }
     
-    def get_quote(self, instruments: List[str]) -> Dict[str, Any]:
-        """Get quote for instruments."""
+    def get_instrument_token(self, symbol: str) -> Optional[int]:
+        """Get instrument token for a given trading symbol."""
         try:
-            quotes = self.kite.quote(instruments)
+            # Ensure instruments are loaded
+            if KiteService._symbol_to_instrument_map is None:
+                self.get_instruments()
+            
+            instrument = KiteService._symbol_to_instrument_map.get(symbol)
+            if instrument:
+                return instrument.get('instrument_token')
+            else:
+                print(f"Instrument not found for symbol: {symbol}")
+                return None
+        except Exception as e:
+            print(f"Error getting instrument token for {symbol}: {e}")
+            return None
+    
+    def get_instrument_details(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Get full instrument details for a given trading symbol."""
+        try:
+            # Ensure instruments are loaded
+            if KiteService._symbol_to_instrument_map is None:
+                self.get_instruments()
+            
+            return KiteService._symbol_to_instrument_map.get(symbol)
+        except Exception as e:
+            print(f"Error getting instrument details for {symbol}: {e}")
+            return None
+    
+    def get_quote(self, instruments: List[str]) -> Dict[str, Any]:
+        """Get quote for instruments. Converts symbols to instrument tokens if needed."""
+        try:
+            # Convert symbols to instrument tokens if they are not already tokens
+            instrument_tokens = []
+            symbol_to_token_map = {}
+            
+            for instrument in instruments:
+                if instrument.isdigit():
+                    # It's already an instrument token
+                    instrument_tokens.append(instrument)
+                else:
+                    # It's a symbol, convert to token
+                    token = self.get_instrument_token(instrument)
+                    if token:
+                        instrument_tokens.append(str(token))
+                        symbol_to_token_map[str(token)] = instrument
+                    else:
+                        print(f"Warning: Could not find instrument token for symbol: {instrument}")
+                        continue
+            
+            if not instrument_tokens:
+                return {
+                    'success': False,
+                    'error': 'No valid instruments found'
+                }
+            
+            # Fetch quotes using instrument tokens
+            quotes = self.kite.quote(instrument_tokens)
+            
+            # Convert token keys back to symbols for easier access
+            formatted_quotes = {}
+            for token, quote_data in quotes.items():
+                symbol = symbol_to_token_map.get(token, token)  # Use symbol if available, otherwise token
+                formatted_quotes[symbol] = quote_data
+            
             return {
                 'success': True,
-                'quotes': quotes
+                'quotes': formatted_quotes,
+                'instrument_tokens': instrument_tokens,
+                'symbol_mapping': symbol_to_token_map
             }
         except Exception as e:
             return {

@@ -238,6 +238,31 @@ def get_instruments():
     else:
         return jsonify(result), 400
 
+@app.route('/api/kite/instrument-token', methods=['POST'])
+def get_instrument_token():
+    """Get instrument token for a symbol."""
+    if not kite_service:
+        return jsonify({"error": "Kite service not initialized"}), 500
+    
+    data = request.get_json()
+    symbol = data.get('symbol')
+    
+    if not symbol:
+        return jsonify({"error": "symbol is required"}), 400
+    
+    token = kite_service.get_instrument_token(symbol)
+    if token:
+        return jsonify({
+            "success": True,
+            "symbol": symbol,
+            "instrument_token": token
+        })
+    else:
+        return jsonify({
+            "success": False,
+            "error": f"Instrument not found for symbol: {symbol}"
+        }), 404
+
 @app.route('/api/kite/quote', methods=['POST'])
 def get_quote():
     """Get quote for instruments."""
@@ -246,12 +271,14 @@ def get_quote():
     
     data = request.get_json()
     instruments = data.get('instruments', [])
+    print(f"Instruments: {instruments}")
     
     if not instruments:
         return jsonify({"error": "instruments list is required"}), 400
     
     result = kite_service.get_quote(instruments)
     if result['success']:
+        print(f"Quote data: {result}")
         return jsonify(result)
     else:
         return jsonify(result), 400
