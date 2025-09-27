@@ -15,7 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             min-height: 100vh;
-            padding: 2rem 0;
+            padding: 2rem 0 2rem 0;
         }
 
         .container {
@@ -24,7 +24,7 @@
             padding: 0 1rem;
         }
 
-        .header {
+        .page-header {
             background: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -32,7 +32,6 @@
             margin-bottom: 2rem;
             text-align: center;
             border: 1px solid #e1e5e9;
-            position: relative;
         }
 
         h1 {
@@ -43,7 +42,7 @@
             letter-spacing: -0.02em;
         }
 
-        .nav-buttons {
+        .action-buttons {
             display: flex;
             gap: 1rem;
             justify-content: center;
@@ -96,30 +95,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .logout-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            font-size: 1.2rem;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logout-btn:hover {
-            background: #c82333;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
 
         .btn-algorithm {
             background: #28a745;
@@ -409,15 +384,15 @@
     </style>
 </head>
 <body>
+    <!-- Include floating header -->
+    <div id="header-placeholder"></div>
+    
     <div class="container">
-        <div class="header">
-            <button onclick="logout()" class="logout-btn" title="Logout">🚪</button>
+        <div class="page-header">
             <h1>💰 My Holdings</h1>
             <p>View your current stock holdings and portfolio performance</p>
             
-            <div class="nav-buttons">
-                <a href="/" class="btn btn-primary">🏠 Home</a>
-                <a href="/positions" class="btn btn-secondary">📊 Positions</a>
+            <div class="action-buttons">
                 <button onclick="triggerAlgorithm()" class="btn btn-algorithm">🤖 Trigger Algorithm</button>
             </div>
         </div>
@@ -467,10 +442,23 @@
         let currentSortColumn = null;
         let currentSortDirection = 'asc';
 
+        // Load header component
+        async function loadHeader() {
+            try {
+                const response = await fetch('/static/components/header.html');
+                const headerHtml = await response.text();
+                document.getElementById('header-placeholder').innerHTML = headerHtml;
+            } catch (error) {
+                console.error('Error loading header:', error);
+            }
+        }
+
         // Load holdings when page loads
         window.addEventListener('load', function() {
-            loadHoldings();
-            setupSorting();
+            loadHeader().then(() => {
+                loadHoldings();
+                setupSorting();
+            });
         });
 
         async function loadHoldings() {

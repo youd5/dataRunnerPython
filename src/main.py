@@ -3,7 +3,7 @@
 Main entry point for the Python web service with Zerodha Kite integration.
 """
 
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, send_from_directory
 from kite_service import KiteService
 import os
 import urllib.parse
@@ -81,6 +81,11 @@ def positions():
 def algorithm_triggered():
     """Render the algorithm triggered page."""
     return render_template('algorithm_triggered.html')
+
+@app.route('/static/components/header.html')
+def header_component():
+    """Serve the header component."""
+    return send_from_directory('templates/components', 'header.html')
 
 @app.route('/api/hello')
 def hello_api():

@@ -1,0 +1,198 @@
+<!-- Floating Header Component -->
+<header class="floating-header">
+    <div class="header-container">
+        <div class="header-logo">
+            <h1>🚀 dataRunnerPython</h1>
+        </div>
+        <nav class="header-nav">
+            <a href="/" class="nav-tab" id="dashboardTab">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            <a href="/holdings" class="nav-tab" id="holdingsTab">
+                <span class="nav-icon">💰</span>
+                <span class="nav-text">Holdings</span>
+            </a>
+            <a href="/positions" class="nav-tab" id="positionsTab">
+                <span class="nav-icon">📈</span>
+                <span class="nav-text">Positions</span>
+            </a>
+            <button class="nav-tab logout-tab" onclick="logout()" id="logoutTab">
+                <span class="nav-icon">🚪</span>
+                <span class="nav-text">Logout</span>
+            </button>
+        </nav>
+    </div>
+</header>
+
+<style>
+    .floating-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #e1e5e9;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 70px;
+    }
+
+    .header-logo h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+
+    .header-nav {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .nav-tab {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #495057;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        border: none;
+        background: none;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .nav-tab:hover {
+        background: #f8f9fa;
+        color: #2c3e50;
+        transform: translateY(-1px);
+    }
+
+    .nav-tab.active {
+        background: #2c3e50;
+        color: white;
+        box-shadow: 0 2px 8px rgba(44, 62, 80, 0.3);
+    }
+
+    .nav-tab.active:hover {
+        background: #34495e;
+        transform: translateY(-1px);
+    }
+
+    .nav-icon {
+        font-size: 1.1rem;
+    }
+
+    .nav-text {
+        white-space: nowrap;
+    }
+
+    .logout-tab {
+        background: #dc3545;
+        color: white;
+    }
+
+    .logout-tab:hover {
+        background: #c82333;
+        color: white;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .header-container {
+            padding: 0 0.5rem;
+            height: 60px;
+        }
+
+        .header-logo h1 {
+            font-size: 1.3rem;
+        }
+
+        .nav-text {
+            display: none;
+        }
+
+        .nav-tab {
+            padding: 0.75rem;
+            min-width: 50px;
+            justify-content: center;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-nav {
+            gap: 0.25rem;
+        }
+
+        .nav-tab {
+            padding: 0.6rem;
+            min-width: 45px;
+        }
+    }
+
+    /* Add top padding to body to account for fixed header */
+    body {
+        padding-top: 70px;
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding-top: 60px;
+        }
+    }
+</style>
+
+<script>
+    function logout() {
+        fetch('/api/kite/logout', { method: 'POST' })
+            .then(() => {
+                window.location.href = '/';
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                window.location.href = '/';
+            });
+    }
+
+    // Set active tab based on current page
+    function setActiveTab() {
+        const currentPath = window.location.pathname;
+        const tabs = document.querySelectorAll('.nav-tab');
+        
+        // Remove active class from all tabs
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Add active class to current tab
+        if (currentPath === '/' || currentPath === '/index.html') {
+            document.getElementById('dashboardTab').classList.add('active');
+        } else if (currentPath === '/holdings') {
+            document.getElementById('holdingsTab').classList.add('active');
+        } else if (currentPath === '/positions') {
+            document.getElementById('positionsTab').classList.add('active');
+        }
+    }
+
+    // Initialize active tab when page loads
+    document.addEventListener('DOMContentLoaded', setActiveTab);
+</script>
