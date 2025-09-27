@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to dataRunnerPython</title>
+    <title id="pageTitle">Welcome to dataRunnerPython</title>
     <style>
         * {
             margin: 0;
@@ -181,32 +181,32 @@
 </head>
 <body>
     <div class="container">
-        <h1>🚀 dataRunnerPython</h1>
+        <h1 id="mainHeading">🚀 dataRunnerPython</h1>
         <p id="welcomeText">Welcome to dataRunnerPython web service with Zerodha Kite integration! Get started by logging into your Zerodha account.</p>
         
         <!-- Login Section (shown when not logged in) -->
         <div class="button-group" id="loginSection">
             <button class="cta-button primary" onclick="loginToZerodha()" id="zerodhaButton">
-                🔐 Login to Zerodha
+                <span id="loginButtonText">🔐 Login to Zerodha</span>
             </button>
             
             <button class="cta-button secondary" onclick="callAPI()" id="apiButton">
-                🚀 Test API
+                <span id="apiButtonText">🚀 Test API</span>
             </button>
         </div>
         
         <!-- Trading Section (shown when logged in) -->
         <div class="button-group" id="tradingSection" style="display: none;">
             <button class="cta-button primary" onclick="getHoldings()" id="holdingsButton">
-                💰 HOLDINGS
+                <span id="holdingsButtonText">💰 HOLDINGS</span>
             </button>
             
             <button class="cta-button secondary" onclick="getPositions()" id="positionsButton">
-                📊 POSITIONS
+                <span id="positionsButtonText">📊 POSITIONS</span>
             </button>
             
             <button class="cta-button logout" onclick="logout()" id="logoutButton" style="background: linear-gradient(45deg, #dc3545, #c82333); box-shadow: 0 4px 15px rgba(220, 53, 67, 0.4);">
-                🚪 Logout
+                <span id="logoutButtonText">🚪 Logout</span>
             </button>
         </div>
         
@@ -215,15 +215,31 @@
         </div>
     </div>
 
+    <!-- Load constants -->
+    <script src="/static/js/constants.js"></script>
+    
     <script>
-        // Check login status on page load
+        // Initialize constants on page load
         window.addEventListener('load', function() {
+            initializeConstants();
             checkLoginStatus();
         });
 
+        function initializeConstants() {
+            // Set initial values from constants
+            document.getElementById('pageTitle').textContent = MESSAGES.PAGE_TITLE;
+            document.getElementById('mainHeading').textContent = MESSAGES.MAIN_HEADING;
+            document.getElementById('welcomeText').textContent = MESSAGES.WELCOME_NOT_LOGGED_IN;
+            document.getElementById('loginButtonText').textContent = MESSAGES.LOGIN_TO_ZERODHA;
+            document.getElementById('apiButtonText').textContent = MESSAGES.TEST_API;
+            document.getElementById('holdingsButtonText').textContent = MESSAGES.HOLDINGS;
+            document.getElementById('positionsButtonText').textContent = MESSAGES.POSITIONS;
+            document.getElementById('logoutButtonText').textContent = MESSAGES.LOGOUT;
+        }
+
         async function checkLoginStatus() {
             try {
-                const response = await fetch('/api/kite/profile');
+                const response = await fetch(MESSAGES.PROFILE_ENDPOINT);
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
@@ -242,18 +258,18 @@
         function showLoginSection() {
             document.getElementById('loginSection').style.display = 'flex';
             document.getElementById('tradingSection').style.display = 'none';
-            document.getElementById('welcomeText').textContent = 'Welcome to dataRunnerPython web service with Zerodha Kite integration! Get started by logging into your Zerodha account.';
+            document.getElementById('welcomeText').textContent = MESSAGES.WELCOME_NOT_LOGGED_IN;
         }
 
         function showTradingSection() {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('tradingSection').style.display = 'flex';
-            document.getElementById('welcomeText').textContent = 'Welcome back! You are logged in to Zerodha Kite. Check your holdings and positions below.';
+            document.getElementById('welcomeText').textContent = MESSAGES.WELCOME_LOGGED_IN;
         }
 
         function logout() {
             // Clear the access token from .env file by setting it to empty
-            fetch('/api/kite/logout', { method: 'POST' })
+            fetch(MESSAGES.LOGOUT_ENDPOINT, { method: 'POST' })
                 .then(() => {
                     // Show login section
                     showLoginSection();
@@ -261,7 +277,7 @@
                     document.getElementById('responseContainer').style.display = 'none';
                 })
                 .catch(error => {
-                    console.error('Logout error:', error);
+                    console.error(MESSAGES.LOGOUT_ERROR, error);
                     // Still show login section even if logout fails
                     showLoginSection();
                 });
@@ -269,12 +285,12 @@
 
         function getHoldings() {
             // Redirect to holdings page
-            window.location.href = '/holdings';
+            window.location.href = MESSAGES.HOLDINGS_URL;
         }
 
         function getPositions() {
             // Redirect to positions page
-            window.location.href = '/positions';
+            window.location.href = MESSAGES.POSITIONS_URL;
         }
 
         async function loginToZerodha() {
@@ -284,11 +300,11 @@
             
             // Disable button and show loading
             button.disabled = true;
-            button.innerHTML = '<span class="loading"></span>Getting Login URL...';
+            button.innerHTML = `<span class="loading"></span>${MESSAGES.GETTING_LOGIN_URL}`;
             responseContainer.style.display = 'none';
             
             try {
-                const response = await fetch('/api/kite/login-url');
+                const response = await fetch(MESSAGES.LOGIN_URL_ENDPOINT);
                 const data = await response.json();
                 
                 if (response.ok) {
@@ -298,12 +314,12 @@
                     throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {
-                responseText.textContent = `Error: ${error.message}`;
+                responseText.textContent = `${MESSAGES.ERROR_PREFIX}${error.message}`;
                 responseContainer.className = 'response-container show error';
             } finally {
                 // Re-enable button
                 button.disabled = false;
-                button.innerHTML = '🔐 Login to Zerodha';
+                button.innerHTML = MESSAGES.LOGIN_TO_ZERODHA;
             }
         }
 
@@ -314,26 +330,26 @@
             
             // Disable button and show loading
             button.disabled = true;
-            button.innerHTML = '<span class="loading"></span>Calling API...';
+            button.innerHTML = `<span class="loading"></span>${MESSAGES.CALLING_API}`;
             responseContainer.style.display = 'none';
             
             try {
-                const response = await fetch('/api/hello');
+                const response = await fetch(MESSAGES.HELLO_API_ENDPOINT);
                 const data = await response.json();
                 
                 if (response.ok) {
-                    responseText.textContent = `API Response: ${data.message}`;
+                    responseText.textContent = `${MESSAGES.API_RESPONSE_PREFIX}${data.message}`;
                     responseContainer.className = 'response-container show';
                 } else {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
             } catch (error) {
-                responseText.textContent = `Error: ${error.message}`;
+                responseText.textContent = `${MESSAGES.ERROR_PREFIX}${error.message}`;
                 responseContainer.className = 'response-container show error';
             } finally {
                 // Re-enable button
                 button.disabled = false;
-                button.innerHTML = '🚀 Test API';
+                button.innerHTML = MESSAGES.TEST_API;
             }
         }
     </script>

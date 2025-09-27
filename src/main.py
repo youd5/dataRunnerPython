@@ -9,7 +9,7 @@ import os
 import urllib.parse
 import re
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 def save_token_to_env(access_token):
     """Save the access token to the .env file."""
