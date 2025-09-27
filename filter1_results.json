@@ -1,0 +1,120 @@
+{
+  "success": true,
+  "fetch_result": {
+    "success": true,
+    "total_instruments_available": 8412,
+    "processed_instruments": 1,
+    "instruments": [
+      {
+        "instrument_token": 256265,
+        "tradingsymbol": "NIFTY 50",
+        "name": "NIFTY 50",
+        "exchange": "NSE",
+        "instrument_type": "EQ",
+        "segment": "INDICES",
+        "lot_size": 0,
+        "tick_size": 0.0
+      }
+    ],
+    "historical_data": [
+      {
+        "instrument_token": 256265,
+        "trading_symbol": "NIFTY 50",
+        "historical_data": [
+          {
+            "date": "2025-09-19 00:00:00+05:30",
+            "open": 25410.2,
+            "high": 25431.4,
+            "low": 25286.3,
+            "close": 25327.05,
+            "volume": 0
+          },
+          {
+            "date": "2025-09-22 00:00:00+05:30",
+            "open": 25238.1,
+            "high": 25331.7,
+            "low": 25151.05,
+            "close": 25202.35,
+            "volume": 0
+          },
+          {
+            "date": "2025-09-23 00:00:00+05:30",
+            "open": 25209,
+            "high": 25261.9,
+            "low": 25084.65,
+            "close": 25169.5,
+            "volume": 0
+          },
+          {
+            "date": "2025-09-24 00:00:00+05:30",
+            "open": 25108.75,
+            "high": 25149.85,
+            "low": 25027.45,
+            "close": 25056.9,
+            "volume": 0
+          },
+          {
+            "date": "2025-09-25 00:00:00+05:30",
+            "open": 25034.5,
+            "high": 25092.7,
+            "low": 24878.3,
+            "close": 24890.85,
+            "volume": 0
+          },
+          {
+            "date": "2025-09-26 00:00:00+05:30",
+            "open": 24818.55,
+            "high": 24868.6,
+            "low": 24629.45,
+            "close": 24654.7,
+            "volume": 0
+          }
+        ],
+        "count": 6,
+        "date_range": {
+          "from_date": "2025-09-19",
+          "to_date": "2025-09-27"
+        },
+        "interval": "day"
+      }
+    ],
+    "date_range": {
+      "from_date": "2025-09-19",
+      "to_date": "2025-09-27"
+    },
+    "interval": "day",
+    "exchange": "NSE"
+  },
+  "analysis_result": {
+    "success": true,
+    "analysis_results": [
+      {
+        "trading_symbol": "NIFTY 50",
+        "instrument_token": 256265,
+        "data_points": 6,
+        "price_analysis": {
+          "first_price": 25327.05,
+          "last_price": 24654.7,
+          "min_price": 24654.7,
+          "max_price": 25327.05,
+          "avg_price": 25050.225000000002,
+          "price_change": -672.3499999999985,
+          "price_change_percent": -2.654671586307914,
+          "volatility": 222.0681553600152
+        },
+        "volume_analysis": {
+          "avg_volume": 0,
+          "max_volume": 0,
+          "min_volume": 0
+        }
+      }
+    ],
+    "total_analyzed": 1
+  },
+  "summary": {
+    "total_instruments_available": 8412,
+    "processed_instruments": 1,
+    "successful_historical_data": 1,
+    "analyzed_instruments": 1
+  }
+}
