@@ -27,6 +27,59 @@ class Filter1:
             print(f"❌ Failed to initialize Filter1: {e}")
             self.kite_service = None
     
+    def get_instruments_data(self) -> Dict[str, Any]:
+        """
+        Get instruments data either from CSV cache or NSE API.
+        
+        Returns:
+            Dict[str, Any]: Instruments result in standard format
+        """
+        # Check if instruments CSV file exists
+        instruments_csv_path = "results/instruments/nse-instruments.csv"
+        
+        if os.path.exists(instruments_csv_path):
+            print(f"📁 Found existing instruments file: {instruments_csv_path}")
+            print("📊 Loading instruments from CSV file...")
+            
+            # Load instruments from CSV
+            instruments_df = pd.read_csv(instruments_csv_path)
+            instruments = instruments_df.to_dict('records')
+            
+            print(f"✅ Loaded {len(instruments)} instruments from CSV file")
+            
+            # Create instruments_result in the expected format
+            instruments_result = {
+                'success': True,
+                'instruments': instruments
+            }
+        else:
+            print("📡 CSV file not found, fetching from NSE API...")
+            # Step 1: Fetch all instruments from NSE exchange
+            instruments_result = self.kite_service.get_instruments(exchange='NSE')
+
+            instruments = instruments_result['instruments']
+            
+            # Only save to CSV if we fetched from API (not from existing CSV)
+            instruments_csv_path = "results/instruments/nse-instruments.csv"
+            if not os.path.exists(instruments_csv_path):
+                # Save instruments to CSV
+                instruments_df = pd.DataFrame(instruments)
+                
+                # Create results/instruments directory if it doesn't exist
+                instruments_dir = "results/instruments"
+                if not os.path.exists(instruments_dir):
+                    os.makedirs(instruments_dir)
+                    print(f"📁 Created directory: {instruments_dir}")
+                
+                # Save instruments to CSV
+                instruments_df.to_csv(instruments_csv_path, index=False)
+                print(f"💾 NSE instruments saved to: {instruments_csv_path}")
+                print(f"📊 Total instruments saved: {len(instruments_df)}")
+            else:
+                print(f"📁 Using existing instruments file: {instruments_csv_path}")
+        
+        return instruments_result
+    
     def fetch_instruments_and_historical_data(self, max_instruments: int = 5) -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
@@ -46,8 +99,8 @@ class Filter1:
         print(f"\n🔍 Fetching instruments from NSE exchange...")
         
         try:
-            # Step 1: Fetch all instruments from NSE exchange
-            instruments_result = self.kite_service.get_instruments(exchange='NSE')
+            # Get instruments data (from CSV cache or API)
+            instruments_result = self.get_instruments_data()
             
             if not instruments_result['success']:
                 return {
@@ -56,18 +109,15 @@ class Filter1:
                 }
             
             instruments = instruments_result['instruments']
-            print(f"✅ Fetched {len(instruments)} instruments from NSE")
             
             # Step 2: Process up to max_instruments
-            processed_instruments = []
-            historical_data_results = []
             
             # Calculate date range (today - 8 days to today)
             end_date = datetime.now().strftime("%Y-%m-%d")
             start_date = (datetime.now() - timedelta(days=8)).strftime("%Y-%m-%d")
             resultFrame = pd.DataFrame(columns=['Symbol', 'name', 'token', "weekAvgVol"])
             count = 0
-            max_instruments = 30
+            max_instruments = 5
             print(f"📅 Date range: {start_date} to {end_date}")
             print(f"🔄 Processing up to {max_instruments} instruments...")
             
@@ -80,21 +130,6 @@ class Filter1:
                     
                     print(f"\n📊 Processing instrument {i+1}/{max_instruments}:")
                     print(f"   Symbol: {trading_symbol}")
-                    print(f"   Name: {name}")
-                    print(f"   Token: {instrument_token}")
-                    
-                    # Store instrument info
-                    instrument_info = {
-                        'instrument_token': instrument_token,
-                        'tradingsymbol': trading_symbol,
-                        'name': name,
-                        'exchange': instrument.get('exchange', 'NSE'),
-                        'instrument_type': instrument.get('instrument_type', 'Unknown'),
-                        'segment': instrument.get('segment', 'Unknown'),
-                        'lot_size': instrument.get('lot_size', 0),
-                        'tick_size': instrument.get('tick_size', 0.0)
-                    }
-                    processed_instruments.append(instrument_info)
                     
                     # Step 3: Fetch historical data
                     if instrument_token:
@@ -111,6 +146,7 @@ class Filter1:
                             print(f"   ✅ Historical data fetched: {historical_result['count']} data points")
 
                             historyData = pd.DataFrame(historical_result['data'])
+                            print("historyData\n", historyData)
 
                             weekAvgVol = round(historyData["volume"].mean(), 2)
                             weekAvgClose = round(historyData["close"].mean(), 2)
@@ -126,45 +162,16 @@ class Filter1:
                             resultFrame.loc[count] = [trading_symbol, trading_symbol, str(instrument_token), weekAvgVol]
                             count += 1
                             
-                            # Store historical data result
-                            historical_data_results.append({
-                                'instrument_token': instrument_token,
-                                'trading_symbol': trading_symbol,
-                                'historical_data': historical_result['data'],
-                                'count': historical_result['count'],
-                                'date_range': {
-                                    'from_date': start_date,
-                                    'to_date': end_date
-                                },
-                                'interval': historical_result['interval']
-                            })
-                            
-                            # Show sample data
-                            if historical_result['data']:
-                                sample = historical_result['data'][0]
-                                print(f"   📊 Sample data:")
-                                print(f"      Date: {sample.get('date', 'N/A')}")
-                                print(f"      Open: {sample.get('open', 'N/A')}")
-                                print(f"      High: {sample.get('high', 'N/A')}")
-                                print(f"      Low: {sample.get('low', 'N/A')}")
-                                print(f"      Close: {sample.get('close', 'N/A')}")
-                                print(f"      Volume: {sample.get('volume', 'N/A')}")
                         else:
                             print(f"   ❌ Failed to fetch historical data: {historical_result['error']}")
-                            historical_data_results.append({
-                                'instrument_token': instrument_token,
-                                'trading_symbol': trading_symbol,
-                                'error': historical_result['error'],
-                                'historical_data': None
-                            })
+                            
                     else:
                         print(f"   ⚠️ No instrument token found")
                         
                 except Exception as e:
                     print(f"   ❌ Error processing instrument: {e}")
                     continue
-            print("resultFrame", resultFrame)
-            print("historical_data_results", historical_data_results)
+            print("resultFrame\n", resultFrame)
             
             # Create results directory if it doesn't exist
             results_dir = "results"
@@ -180,9 +187,9 @@ class Filter1:
             return {
                 'success': True,
                 'total_instruments_available': len(instruments),
-                'processed_instruments': len(processed_instruments),
-                'instruments': processed_instruments,
-                'historical_data': historical_data_results,
+                'processed_instruments': len("processed_instruments"),
+                'instruments': "processed_instruments",
+                'historical_data': "historical_data_results",
                 'date_range': {
                     'from_date': start_date,
                     'to_date': end_date

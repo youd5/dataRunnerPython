@@ -312,14 +312,6 @@
         "trading_symbol": "NIFTY 50",
         "historical_data": [
           {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 25410.2,
-            "high": 25431.4,
-            "low": 25286.3,
-            "close": 25327.05,
-            "volume": 0
-          },
-          {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 25238.1,
             "high": 25331.7,
@@ -358,12 +350,20 @@
             "low": 24629.45,
             "close": 24654.7,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 24728.55,
+            "high": 24791.3,
+            "low": 24606.2,
+            "close": 24677.55,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -371,14 +371,6 @@
         "instrument_token": 256777,
         "trading_symbol": "NIFTY MIDCAP 100",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 59124.05,
-            "high": 59247.2,
-            "low": 59051.2,
-            "close": 59094.35,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 58977.9,
@@ -418,12 +410,20 @@
             "low": 56327.4,
             "close": 56378.55,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 56576.05,
+            "high": 56907,
+            "low": 56339.4,
+            "close": 56580.75,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -431,14 +431,6 @@
         "instrument_token": 260105,
         "trading_symbol": "NIFTY BANK",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 55647.95,
-            "high": 55688.75,
-            "low": 55355.3,
-            "close": 55458.85,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 55429.3,
@@ -478,12 +470,20 @@
             "low": 54310.95,
             "close": 54389.35,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 54460.4,
+            "high": 54686.05,
+            "low": 54226.6,
+            "close": 54541.35,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -491,14 +491,6 @@
         "instrument_token": 260617,
         "trading_symbol": "NIFTY 100",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 26089.05,
-            "high": 26103.55,
-            "low": 25976.75,
-            "close": 26025.85,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 25955.8,
@@ -538,12 +530,20 @@
             "low": 25261.35,
             "close": 25287.1,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 25363.3,
+            "high": 25444.55,
+            "low": 25251,
+            "close": 25350.1,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -551,14 +551,6 @@
         "instrument_token": 257033,
         "trading_symbol": "NIFTY DIV OPPS 50",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 6073.95,
-            "high": 6079.4,
-            "low": 6058.8,
-            "close": 6071.65,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 6022.15,
@@ -598,12 +590,20 @@
             "low": 5854.8,
             "close": 5866.5,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 5885,
+            "high": 5922.55,
+            "low": 5871.85,
+            "close": 5911.1,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -611,14 +611,6 @@
         "instrument_token": 257289,
         "trading_symbol": "NIFTY COMMODITIES",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 9043.95,
-            "high": 9071.8,
-            "low": 9015.65,
-            "close": 9048.4,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 9058.25,
@@ -658,12 +650,20 @@
             "low": 8875.7,
             "close": 8890.35,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 8916.3,
+            "high": 8989.05,
+            "low": 8914.1,
+            "close": 8966.6,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -671,14 +671,6 @@
         "instrument_token": 257545,
         "trading_symbol": "NIFTY CONSUMPTION",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 12490.25,
-            "high": 12506.1,
-            "low": 12445.65,
-            "close": 12462.65,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 12482.95,
@@ -718,12 +710,20 @@
             "low": 12073.15,
             "close": 12080.15,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 12123.8,
+            "high": 12153.4,
+            "low": 12065.7,
+            "close": 12111.1,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -731,14 +731,6 @@
         "instrument_token": 257801,
         "trading_symbol": "NIFTY FIN SERVICE",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 26646.15,
-            "high": 26664.25,
-            "low": 26463.75,
-            "close": 26527.6,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 26513.15,
@@ -778,12 +770,20 @@
             "low": 25945.45,
             "close": 25985.25,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 26016.9,
+            "high": 26111.8,
+            "low": 25886.6,
+            "close": 26028.3,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -791,14 +791,6 @@
         "instrument_token": 258825,
         "trading_symbol": "NIFTY50 PR 2X LEV",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 14136.7,
-            "high": 14159.35,
-            "low": 13999.05,
-            "close": 14044.1,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 13939.25,
@@ -838,12 +830,20 @@
             "low": 13264.5,
             "close": 13291.8,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 13365.4,
+            "high": 13432.9,
+            "low": 13233.45,
+            "close": 13310.4,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -851,14 +851,6 @@
         "instrument_token": 259081,
         "trading_symbol": "NIFTY50 PR 1X INV",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 202.95,
-            "high": 203.95,
-            "low": 202.8,
-            "close": 203.65,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 204.45,
@@ -898,12 +890,20 @@
             "low": 207.7,
             "close": 209.35,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 208.85,
+            "high": 209.9,
+            "low": 208.3,
+            "close": 209.25,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -911,14 +911,6 @@
         "instrument_token": 259337,
         "trading_symbol": "NIFTY50 TR 2X LEV",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 21091.1,
-            "high": 21124.85,
-            "low": 20885.7,
-            "close": 20952.9,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 20796.45,
@@ -958,12 +950,20 @@
             "low": 19789.8,
             "close": 19830.55,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 19940.3,
+            "high": 20041.05,
+            "low": 19743.5,
+            "close": 19858.25,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -971,14 +971,6 @@
         "instrument_token": 259593,
         "trading_symbol": "NIFTY50 TR 1X INV",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 166.3,
-            "high": 167.1,
-            "low": 166.15,
-            "close": 166.85,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 167.5,
@@ -1018,12 +1010,20 @@
             "low": 170.15,
             "close": 171.55,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 171.1,
+            "high": 171.95,
+            "low": 170.65,
+            "close": 171.45,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1031,14 +1031,6 @@
         "instrument_token": 259849,
         "trading_symbol": "NIFTY IT",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 36765.5,
-            "high": 36821.2,
-            "low": 36369.95,
-            "close": 36578.25,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 35437.9,
@@ -1078,12 +1070,20 @@
             "low": 33636.55,
             "close": 33702,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 33900.6,
+            "high": 33970.05,
+            "low": 33606.45,
+            "close": 33755.75,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1091,14 +1091,6 @@
         "instrument_token": 260873,
         "trading_symbol": "NIFTY MIDCAP 50",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 16667.95,
-            "high": 16697.85,
-            "low": 16622.1,
-            "close": 16633.9,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 16590.15,
@@ -1138,12 +1130,20 @@
             "low": 15889.4,
             "close": 15902.3,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 15958.2,
+            "high": 16051.15,
+            "low": 15899.05,
+            "close": 15957.75,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1151,14 +1151,6 @@
         "instrument_token": 261129,
         "trading_symbol": "NIFTY REALTY",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 919.95,
-            "high": 927.65,
-            "low": 913.8,
-            "close": 923.5,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 924.75,
@@ -1198,12 +1190,20 @@
             "low": 866.15,
             "close": 867.15,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 872.9,
+            "high": 880.1,
+            "low": 869.45,
+            "close": 875.3,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1211,14 +1211,6 @@
         "instrument_token": 261385,
         "trading_symbol": "NIFTY INFRA",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 9232.2,
-            "high": 9260.85,
-            "low": 9211.55,
-            "close": 9237.5,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 9232.6,
@@ -1258,12 +1250,20 @@
             "low": 9026.7,
             "close": 9039.9,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 9072.65,
+            "high": 9091.85,
+            "low": 9032.85,
+            "close": 9059.7,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1271,14 +1271,6 @@
         "instrument_token": 261641,
         "trading_symbol": "NIFTY ENERGY",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 35596.15,
-            "high": 35814.65,
-            "low": 35583.05,
-            "close": 35745.75,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 35804.3,
@@ -1318,12 +1310,20 @@
             "low": 34775.15,
             "close": 34830,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 34994.4,
+            "high": 35265.8,
+            "low": 34952.75,
+            "close": 35120.9,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1331,14 +1331,6 @@
         "instrument_token": 261897,
         "trading_symbol": "NIFTY FMCG",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 56594.55,
-            "high": 56640.7,
-            "low": 56191.75,
-            "close": 56273.05,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 56357,
@@ -1378,12 +1370,20 @@
             "low": 54776.95,
             "close": 54847.55,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 54861.6,
+            "high": 55007.1,
+            "low": 54343.75,
+            "close": 54899,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1391,14 +1391,6 @@
         "instrument_token": 262153,
         "trading_symbol": "NIFTY MNC",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 30695.05,
-            "high": 30697.55,
-            "low": 30473,
-            "close": 30502.1,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 30564.95,
@@ -1438,12 +1430,20 @@
             "low": 29806.8,
             "close": 29822.1,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 29860.45,
+            "high": 29908.45,
+            "low": 29715.65,
+            "close": 29822.45,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1451,14 +1451,6 @@
         "instrument_token": 262409,
         "trading_symbol": "NIFTY PHARMA",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 22636.2,
-            "high": 22716.9,
-            "low": 22580.75,
-            "close": 22686.6,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 22668.95,
@@ -1498,12 +1490,20 @@
             "low": 21390.25,
             "close": 21507.2,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 21543.4,
+            "high": 21740.85,
+            "low": 21443.8,
+            "close": 21513.55,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1511,14 +1511,6 @@
         "instrument_token": 262665,
         "trading_symbol": "NIFTY PSE",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 9840.5,
-            "high": 9899.75,
-            "low": 9833.9,
-            "close": 9869.85,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 9871.7,
@@ -1558,12 +1550,20 @@
             "low": 9634.8,
             "close": 9659.75,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 9706.95,
+            "high": 9828.3,
+            "low": 9702.45,
+            "close": 9787.2,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1571,14 +1571,6 @@
         "instrument_token": 262921,
         "trading_symbol": "NIFTY PSU BANK",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 7309.9,
-            "high": 7428.8,
-            "low": 7307.3,
-            "close": 7397.75,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 7395.2,
@@ -1618,12 +1610,20 @@
             "low": 7241.5,
             "close": 7261.45,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 7275.7,
+            "high": 7410.7,
+            "low": 7275.25,
+            "close": 7396.35,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1631,14 +1631,6 @@
         "instrument_token": 263177,
         "trading_symbol": "NIFTY SERV SECTOR",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 33002.7,
-            "high": 33027.3,
-            "low": 32788.55,
-            "close": 32906.6,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 32712.15,
@@ -1678,12 +1670,20 @@
             "low": 31852.4,
             "close": 31884.7,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 31988.15,
+            "high": 32061.1,
+            "low": 31801.5,
+            "close": 31925.8,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1691,14 +1691,6 @@
         "instrument_token": 263433,
         "trading_symbol": "NIFTY AUTO",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 27319.45,
-            "high": 27367.8,
-            "low": 27195.05,
-            "close": 27219.55,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 27256.05,
@@ -1738,12 +1730,20 @@
             "low": 26463.7,
             "close": 26484.55,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 26612.4,
+            "high": 26677.2,
+            "low": 26393.05,
+            "close": 26485.5,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1751,14 +1751,6 @@
         "instrument_token": 263689,
         "trading_symbol": "NIFTY METAL",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 9997.2,
-            "high": 10016.1,
-            "low": 9916.55,
-            "close": 9989.9,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 9984.5,
@@ -1798,12 +1790,20 @@
             "low": 9871.8,
             "close": 9888.25,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 9910.7,
+            "high": 10002.7,
+            "low": 9910.7,
+            "close": 9944.05,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1811,14 +1811,6 @@
         "instrument_token": 263945,
         "trading_symbol": "NIFTY MEDIA",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 1631.1,
-            "high": 1636.95,
-            "low": 1615.85,
-            "close": 1619.45,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 1620.9,
@@ -1858,12 +1850,20 @@
             "low": 1570.3,
             "close": 1575.45,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 1575.5,
+            "high": 1586.05,
+            "low": 1556.55,
+            "close": 1561.7,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1871,14 +1871,6 @@
         "instrument_token": 264457,
         "trading_symbol": "NIFTY 200",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 14204.6,
-            "high": 14211.95,
-            "low": 14153.35,
-            "close": 14174.85,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 14138.45,
@@ -1918,12 +1910,40 @@
             "low": 13716.7,
             "close": 13730.05,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 13772.55,
+            "high": 13822.1,
+            "low": 13712.4,
+            "close": 13766.75,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
+        },
+        "interval": "day"
+      },
+      {
+        "instrument_token": 264713,
+        "trading_symbol": "HANGSENG BEES-NAV",
+        "historical_data": [
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 2297.11,
+            "high": 2297.11,
+            "low": 2297.11,
+            "close": 2297.11,
+            "volume": 0
+          }
+        ],
+        "count": 1,
+        "date_range": {
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       },
@@ -1931,14 +1951,6 @@
         "instrument_token": 265225,
         "trading_symbol": "NIFTY50 DIV POINT",
         "historical_data": [
-          {
-            "date": "2025-09-19 00:00:00+05:30",
-            "open": 0,
-            "high": 0,
-            "low": 0,
-            "close": 210.91,
-            "volume": 0
-          },
           {
             "date": "2025-09-22 00:00:00+05:30",
             "open": 0,
@@ -1978,19 +1990,27 @@
             "low": 0,
             "close": 210.91,
             "volume": 0
+          },
+          {
+            "date": "2025-09-29 00:00:00+05:30",
+            "open": 210.91,
+            "high": 210.91,
+            "low": 210.91,
+            "close": 210.91,
+            "volume": 0
           }
         ],
         "count": 6,
         "date_range": {
-          "from_date": "2025-09-19",
-          "to_date": "2025-09-27"
+          "from_date": "2025-09-21",
+          "to_date": "2025-09-29"
         },
         "interval": "day"
       }
     ],
     "date_range": {
-      "from_date": "2025-09-19",
-      "to_date": "2025-09-27"
+      "from_date": "2025-09-21",
+      "to_date": "2025-09-29"
     },
     "interval": "day",
     "exchange": "NSE"
@@ -2003,14 +2023,14 @@
         "instrument_token": 256265,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 25327.05,
-          "last_price": 24654.7,
+          "first_price": 25202.35,
+          "last_price": 24677.55,
           "min_price": 24654.7,
-          "max_price": 25327.05,
-          "avg_price": 25050.225000000002,
-          "price_change": -672.3499999999985,
-          "price_change_percent": -2.654671586307914,
-          "volatility": 222.0681553600152
+          "max_price": 25202.35,
+          "avg_price": 24941.975000000002,
+          "price_change": -524.7999999999993,
+          "price_change_percent": -2.0823454955589433,
+          "volatility": 219.02503424266357
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2023,14 +2043,14 @@
         "instrument_token": 256777,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 59094.35,
-          "last_price": 56378.55,
+          "first_price": 58699.5,
+          "last_price": 56580.75,
           "min_price": 56378.55,
-          "max_price": 59094.35,
-          "avg_price": 58024.89166666666,
-          "price_change": -2715.7999999999956,
-          "price_change_percent": -4.5957016195287625,
-          "volatility": 890.8637079714007
+          "max_price": 58699.5,
+          "avg_price": 57605.958333333336,
+          "price_change": -2118.75,
+          "price_change_percent": -3.6094856003884193,
+          "volatility": 880.3978340389949
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2043,14 +2063,14 @@
         "instrument_token": 260105,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 55458.85,
-          "last_price": 54389.35,
+          "first_price": 55284.75,
+          "last_price": 54541.35,
           "min_price": 54389.35,
           "max_price": 55509.75,
-          "avg_price": 55123.4,
-          "price_change": -1069.5,
-          "price_change_percent": -1.92845686486467,
-          "volatility": 376.0158906216602
+          "avg_price": 54970.48333333334,
+          "price_change": -743.4000000000015,
+          "price_change_percent": -1.3446746164177308,
+          "volatility": 394.60574381977267
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2063,14 +2083,14 @@
         "instrument_token": 260617,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 26025.85,
-          "last_price": 25287.1,
+          "first_price": 25934.5,
+          "last_price": 25350.1,
           "min_price": 25287.1,
-          "max_price": 26025.85,
-          "avg_price": 25738.63333333333,
-          "price_change": -738.75,
-          "price_change_percent": -2.838524005940248,
-          "volatility": 250.88543146668022
+          "max_price": 25934.5,
+          "avg_price": 25626.00833333333,
+          "price_change": -584.4000000000015,
+          "price_change_percent": -2.2533690643737163,
+          "volatility": 248.33424790100096
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2083,14 +2103,14 @@
         "instrument_token": 257033,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 6071.65,
-          "last_price": 5866.5,
+          "first_price": 6013.4,
+          "last_price": 5911.1,
           "min_price": 5866.5,
-          "max_price": 6071.65,
-          "avg_price": 5981.933333333333,
-          "price_change": -205.14999999999964,
-          "price_change_percent": -3.378817948992443,
-          "volatility": 64.06629162221118
+          "max_price": 6013.4,
+          "avg_price": 5955.175,
+          "price_change": -102.29999999999927,
+          "price_change_percent": -1.7012006518774616,
+          "volatility": 53.69538892369302
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2103,14 +2123,14 @@
         "instrument_token": 257289,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 9048.4,
-          "last_price": 8890.35,
+          "first_price": 9111.05,
+          "last_price": 8966.6,
           "min_price": 8890.35,
           "max_price": 9111.05,
-          "avg_price": 9032.300000000001,
-          "price_change": -158.04999999999927,
-          "price_change_percent": -1.746717651739526,
-          "volatility": 72.9656997042672
+          "avg_price": 9018.666666666666,
+          "price_change": -144.4499999999989,
+          "price_change_percent": -1.585437463300047,
+          "volatility": 76.25181236461763
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2123,14 +2143,14 @@
         "instrument_token": 257545,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 12462.65,
-          "last_price": 12080.15,
+          "first_price": 12493.15,
+          "last_price": 12111.1,
           "min_price": 12080.15,
           "max_price": 12493.15,
-          "avg_price": 12331.949999999999,
-          "price_change": -382.5,
-          "price_change_percent": -3.0691706819978095,
-          "volatility": 140.47107946715118
+          "avg_price": 12273.358333333332,
+          "price_change": -382.0499999999993,
+          "price_change_percent": -3.0580758255523968,
+          "volatility": 146.90534201957703
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2143,14 +2163,14 @@
         "instrument_token": 257801,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 26527.6,
-          "last_price": 25985.25,
+          "first_price": 26528.4,
+          "last_price": 26028.3,
           "min_price": 25985.25,
           "max_price": 26559.5,
-          "avg_price": 26372.766666666666,
-          "price_change": -542.3499999999985,
-          "price_change_percent": -2.044474434174213,
-          "volatility": 203.79579989674835
+          "avg_price": 26289.55,
+          "price_change": -500.1000000000022,
+          "price_change_percent": -1.8851495001583292,
+          "volatility": 224.47353593092777
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2163,14 +2183,14 @@
         "instrument_token": 258825,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 14044.1,
-          "last_price": 13291.8,
+          "first_price": 13899.55,
+          "last_price": 13310.4,
           "min_price": 13291.8,
-          "max_price": 14044.1,
-          "avg_price": 13730.475,
-          "price_change": -752.3000000000011,
-          "price_change_percent": -5.3566978304056585,
-          "volatility": 247.89715063240797
+          "max_price": 13899.55,
+          "avg_price": 13608.191666666666,
+          "price_change": -589.1499999999996,
+          "price_change_percent": -4.238626430352059,
+          "volatility": 243.9607437968021
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2183,14 +2203,14 @@
         "instrument_token": 259081,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 203.65,
-          "last_price": 209.35,
-          "min_price": 203.65,
+          "first_price": 204.7,
+          "last_price": 209.25,
+          "min_price": 204.7,
           "max_price": 209.35,
-          "avg_price": 206.0,
-          "price_change": 5.699999999999989,
-          "price_change_percent": 2.7989197151976373,
-          "volatility": 1.882374387132731
+          "avg_price": 206.9333333333333,
+          "price_change": 4.550000000000011,
+          "price_change_percent": 2.2227650219833963,
+          "volatility": 1.8740923729160814
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2203,14 +2223,14 @@
         "instrument_token": 259337,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 20952.9,
-          "last_price": 19830.55,
+          "first_price": 20737.25,
+          "last_price": 19858.25,
           "min_price": 19830.55,
-          "max_price": 20952.9,
-          "avg_price": 20485.0,
-          "price_change": -1122.3500000000022,
-          "price_change_percent": -5.356537758496447,
-          "volatility": 369.8350195244725
+          "max_price": 20737.25,
+          "avg_price": 20302.558333333334,
+          "price_change": -879.0,
+          "price_change_percent": -4.238749110899468,
+          "volatility": 363.96955735412206
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2223,14 +2243,14 @@
         "instrument_token": 259593,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 166.85,
-          "last_price": 171.55,
-          "min_price": 166.85,
+          "first_price": 167.75,
+          "last_price": 171.45,
+          "min_price": 167.75,
           "max_price": 171.55,
-          "avg_price": 168.79999999999998,
-          "price_change": 4.700000000000017,
-          "price_change_percent": 2.8169014084507147,
-          "volatility": 1.5448840301675344
+          "avg_price": 169.56666666666666,
+          "price_change": 3.6999999999999886,
+          "price_change_percent": 2.20566318926974,
+          "volatility": 1.5282524515130202
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2243,14 +2263,14 @@
         "instrument_token": 259849,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 36578.25,
-          "last_price": 33702,
+          "first_price": 35500.15,
+          "last_price": 33755.75,
           "min_price": 33702,
-          "max_price": 36578.25,
-          "avg_price": 35095.34166666667,
-          "price_change": -2876.25,
-          "price_change_percent": -7.863279407844825,
-          "volatility": 879.1476598656348
+          "max_price": 35500.15,
+          "avg_price": 34624.924999999996,
+          "price_change": -1744.4000000000015,
+          "price_change_percent": -4.913782054442027,
+          "volatility": 695.8377820716071
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2263,14 +2283,14 @@
         "instrument_token": 260873,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 16633.9,
-          "last_price": 15902.3,
+          "first_price": 16511.45,
+          "last_price": 15957.75,
           "min_price": 15902.3,
-          "max_price": 16633.9,
-          "avg_price": 16342.766666666668,
-          "price_change": -731.6000000000022,
-          "price_change_percent": -4.398246953510614,
-          "volatility": 241.0333252662152
+          "max_price": 16511.45,
+          "avg_price": 16230.074999999999,
+          "price_change": -553.7000000000007,
+          "price_change_percent": -3.3534304982300207,
+          "volatility": 236.59569196909175
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2283,14 +2303,14 @@
         "instrument_token": 261129,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 923.5,
-          "last_price": 867.15,
+          "first_price": 921.55,
+          "last_price": 875.3,
           "min_price": 867.15,
-          "max_price": 923.5,
-          "avg_price": 898.6750000000001,
-          "price_change": -56.35000000000002,
-          "price_change_percent": -6.101786681104496,
-          "volatility": 22.10819512458371
+          "max_price": 921.55,
+          "avg_price": 890.6416666666668,
+          "price_change": -46.25,
+          "price_change_percent": -5.018718463458304,
+          "volatility": 20.31229957166074
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2303,14 +2323,14 @@
         "instrument_token": 261385,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 9237.5,
-          "last_price": 9039.9,
+          "first_price": 9208.95,
+          "last_price": 9059.7,
           "min_price": 9039.9,
-          "max_price": 9237.5,
-          "avg_price": 9150.941666666668,
-          "price_change": -197.60000000000036,
-          "price_change_percent": -2.139106901217866,
-          "volatility": 70.86063444458382
+          "max_price": 9208.95,
+          "avg_price": 9121.308333333332,
+          "price_change": -149.25,
+          "price_change_percent": -1.6207059436743603,
+          "volatility": 65.43605922747987
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2323,14 +2343,14 @@
         "instrument_token": 261641,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 35745.75,
-          "last_price": 34830,
+          "first_price": 35992.65,
+          "last_price": 35120.9,
           "min_price": 34830,
           "max_price": 35992.65,
-          "avg_price": 35526.14166666667,
-          "price_change": -915.75,
-          "price_change_percent": -2.5618430163026376,
-          "volatility": 390.32121325119977
+          "avg_price": 35422.0,
+          "price_change": -871.75,
+          "price_change_percent": -2.422022273992051,
+          "volatility": 401.0452935766726
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2343,14 +2363,14 @@
         "instrument_token": 261897,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 56273.05,
-          "last_price": 54847.55,
+          "first_price": 56006.75,
+          "last_price": 54899,
           "min_price": 54847.55,
-          "max_price": 56273.05,
-          "avg_price": 55482.64166666666,
-          "price_change": -1425.5,
-          "price_change_percent": -2.533184179638388,
-          "volatility": 499.0528532602757
+          "max_price": 56006.75,
+          "avg_price": 55253.63333333333,
+          "price_change": -1107.75,
+          "price_change_percent": -1.9778865940266128,
+          "volatility": 386.33876829654105
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2363,14 +2383,14 @@
         "instrument_token": 262153,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 30502.1,
-          "last_price": 29822.1,
+          "first_price": 30391.4,
+          "last_price": 29822.45,
           "min_price": 29822.1,
-          "max_price": 30502.1,
-          "avg_price": 30255.55,
-          "price_change": -680.0,
-          "price_change_percent": -2.2293547001681855,
-          "volatility": 215.15320704093665
+          "max_price": 30391.4,
+          "avg_price": 30142.274999999998,
+          "price_change": -568.9500000000007,
+          "price_change_percent": -1.8720756529807796,
+          "volatility": 233.64744407975067
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2383,14 +2403,14 @@
         "instrument_token": 262409,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 22686.6,
-          "last_price": 21507.2,
+          "first_price": 22365.75,
+          "last_price": 21513.55,
           "min_price": 21507.2,
-          "max_price": 22686.6,
-          "avg_price": 22169.50833333333,
-          "price_change": -1179.3999999999978,
-          "price_change_percent": -5.198663528250147,
-          "volatility": 364.7502803479229
+          "max_price": 22365.75,
+          "avg_price": 21974.0,
+          "price_change": -852.2000000000007,
+          "price_change_percent": -3.810290287604935,
+          "volatility": 349.24038879640847
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2403,14 +2423,14 @@
         "instrument_token": 262665,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 9869.85,
-          "last_price": 9659.75,
+          "first_price": 9841.4,
+          "last_price": 9787.2,
           "min_price": 9659.75,
-          "max_price": 9869.85,
-          "avg_price": 9807.383333333333,
-          "price_change": -210.10000000000036,
-          "price_change_percent": -2.1287050968353154,
-          "volatility": 72.23435047737958
+          "max_price": 9863.95,
+          "avg_price": 9793.608333333334,
+          "price_change": -54.19999999999891,
+          "price_change_percent": -0.550734651573952,
+          "volatility": 66.67531662633651
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2423,14 +2443,14 @@
         "instrument_token": 262921,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 7397.75,
-          "last_price": 7261.45,
+          "first_price": 7370.95,
+          "last_price": 7396.35,
           "min_price": 7261.45,
           "max_price": 7451.1,
-          "avg_price": 7384.425,
-          "price_change": -136.30000000000018,
-          "price_change_percent": -1.8424520969213636,
-          "volatility": 60.91772969888718
+          "avg_price": 7384.191666666667,
+          "price_change": 25.400000000000546,
+          "price_change_percent": 0.3445960154389942,
+          "volatility": 60.8689056954006
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2443,14 +2463,14 @@
         "instrument_token": 263177,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 32906.6,
-          "last_price": 31884.7,
+          "first_price": 32755.2,
+          "last_price": 31925.8,
           "min_price": 31884.7,
-          "max_price": 32906.6,
-          "avg_price": 32517.766666666666,
-          "price_change": -1021.8999999999978,
-          "price_change_percent": -3.1054560483307236,
-          "volatility": 339.1549125727388
+          "max_price": 32755.2,
+          "avg_price": 32354.3,
+          "price_change": -829.4000000000015,
+          "price_change_percent": -2.532117037905436,
+          "volatility": 348.58317873930775
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2463,14 +2483,14 @@
         "instrument_token": 263433,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 27219.55,
-          "last_price": 26484.55,
+          "first_price": 27154.3,
+          "last_price": 26485.5,
           "min_price": 26484.55,
           "max_price": 27321.95,
-          "avg_price": 26991.075,
-          "price_change": -735.0,
-          "price_change_percent": -2.700265066836153,
-          "volatility": 288.45949275129334
+          "avg_price": 26868.733333333334,
+          "price_change": -668.7999999999993,
+          "price_change_percent": -2.4629616672129253,
+          "volatility": 319.59704533817103
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2483,14 +2503,14 @@
         "instrument_token": 263689,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 9989.9,
-          "last_price": 9888.25,
+          "first_price": 10029.1,
+          "last_price": 9944.05,
           "min_price": 9888.25,
           "max_price": 10129.05,
-          "avg_price": 10029.824999999999,
-          "price_change": -101.64999999999964,
-          "price_change_percent": -1.017527702980006,
-          "volatility": 76.5725296151736
+          "avg_price": 10022.183333333332,
+          "price_change": -85.05000000000109,
+          "price_change_percent": -0.8480322262217057,
+          "volatility": 82.25274902531955
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2503,14 +2523,14 @@
         "instrument_token": 263945,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 1619.45,
-          "last_price": 1575.45,
-          "min_price": 1575.45,
+          "first_price": 1627.3,
+          "last_price": 1561.7,
+          "min_price": 1561.7,
           "max_price": 1627.3,
-          "avg_price": 1605.8500000000001,
-          "price_change": -44.0,
-          "price_change_percent": -2.7169718114174564,
-          "volatility": 17.598461106964237
+          "avg_price": 1596.2250000000001,
+          "price_change": -65.59999999999991,
+          "price_change_percent": -4.031217353899091,
+          "volatility": 22.607718998902385
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2523,14 +2543,34 @@
         "instrument_token": 264457,
         "data_points": 6,
         "price_analysis": {
-          "first_price": 14174.85,
-          "last_price": 13730.05,
+          "first_price": 14117.4,
+          "last_price": 13766.75,
           "min_price": 13730.05,
-          "max_price": 14174.85,
-          "avg_price": 14001.341666666667,
-          "price_change": -444.8000000000011,
-          "price_change_percent": -3.137952077094298,
-          "volatility": 149.65030742998482
+          "max_price": 14117.4,
+          "avg_price": 13933.324999999999,
+          "price_change": -350.64999999999964,
+          "price_change_percent": -2.4838143000835826,
+          "volatility": 148.0663104546971
+        },
+        "volume_analysis": {
+          "avg_volume": 0,
+          "max_volume": 0,
+          "min_volume": 0
+        }
+      },
+      {
+        "trading_symbol": "HANGSENG BEES-NAV",
+        "instrument_token": 264713,
+        "data_points": 1,
+        "price_analysis": {
+          "first_price": 2297.11,
+          "last_price": 2297.11,
+          "min_price": 2297.11,
+          "max_price": 2297.11,
+          "avg_price": 2297.11,
+          "price_change": 0.0,
+          "price_change_percent": 0.0,
+          "volatility": 0.0
         },
         "volume_analysis": {
           "avg_volume": 0,
@@ -2559,12 +2599,12 @@
         }
       }
     ],
-    "total_analyzed": 28
+    "total_analyzed": 29
   },
   "summary": {
     "total_instruments_available": 8412,
     "processed_instruments": 30,
-    "successful_historical_data": 28,
-    "analyzed_instruments": 28
+    "successful_historical_data": 29,
+    "analyzed_instruments": 29
   }
 }
