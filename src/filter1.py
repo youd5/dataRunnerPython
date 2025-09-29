@@ -197,11 +197,12 @@ class Filter1:
     
 
 
-    def fetch_instruments_and_historical_data(self, max_instruments: int = 5) -> Dict[str, Any]:
+    def fetch_instruments_and_historical_data(self, instruments_file_path: str = "results/instruments/nse-indices.csv", output_file_path: str = "results/ohlc-nse-indices.csv") -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
         
         Args:
+            instruments_file_path (str): Path to the instruments file (default: "results/instruments/nse-indices.csv")
             max_instruments (int): Maximum number of instruments to process (default: 5)
             
         Returns:
@@ -218,7 +219,7 @@ class Filter1:
         try:
             # Get instruments data (from CSV cache or API)
             #instruments_result = self.get_instruments_data()
-            instruments_result = self.fetch_instruments_list_from_file("results/instruments/nse-indices.csv")
+            instruments_result = self.fetch_instruments_list_from_file(instruments_file_path)
             #instruments_result = self.fetch_instruments_list_from_file("results/instruments/nse-other-instruments.csv")
             
             
@@ -240,11 +241,15 @@ class Filter1:
             resultFrame = pd.DataFrame(columns=['Symbol', 'name', 'token', "weekAvgVol"])
             count = 0
             max_instruments = 5
+            
+            # Initialize list to collect all instrument history dataframes
+            all_instrument_histories = []
+            
             print(f"📅 Date range: {start_date} to {end_date}")
             print(f"🔄 Processing up to {max_instruments} instruments...")
             
             # Iterate over instruments (limit to max_instruments)
-            for i, instrument in enumerate(instruments[:max_instruments]):
+            for i, instrument in enumerate(instruments): #instruments[:max_instruments] for partial processing
                 try:
                     instrument_token = instrument.get('instrument_token')
                     trading_symbol = instrument.get('tradingsymbol', 'Unknown')
@@ -279,6 +284,10 @@ class Filter1:
                                 instrument_history_df.insert(0, 'instrument_token', instrument_token)
                                 instrument_history_df.insert(0, 'trading_symbol', trading_symbol)
 
+                                # Append to the list of all instrument histories
+                                all_instrument_histories.append(instrument_history_df)
+                                
+                                print(f"📊 Added {trading_symbol} data to collection. Shape: {instrument_history_df.shape}")
                                 print(instrument_history_df)
                                 
                             else:
@@ -307,19 +316,30 @@ class Filter1:
                 except Exception as e:
                     print(f"   ❌ Error processing instrument: {e}")
                     continue
-            # print("resultFrame\n", resultFrame)
             
-            # Create results directory if it doesn't exist
-            # results_dir = "results"
-            # if not os.path.exists(results_dir):
-            #     os.makedirs(results_dir)
-            #     print(f"📁 Created directory: {results_dir}")
+            # Combine all instrument history dataframes into one
+            if all_instrument_histories:
+                print(f"\n🔄 Combining {len(all_instrument_histories)} instrument histories...")
+                combined_ohlc_df = pd.concat(all_instrument_histories, ignore_index=True)
+                
+                print(f"📊 Combined OHLC data shape: {combined_ohlc_df.shape}")
+                print(f"📊 Columns: {list(combined_ohlc_df.columns)}")
+                print(f"📊 Unique instruments: {combined_ohlc_df['trading_symbol'].nunique()}")
+                
+                # Create results directory if it doesn't exist
+                results_dir = "results"
+                if not os.path.exists(results_dir):
+                    os.makedirs(results_dir)
+                    print(f"📁 Created directory: {results_dir}")
+                
+                # Save combined OHLC data to CSV
+                ohlc_csv_filename = f"{output_file_path}"
+                combined_ohlc_df.to_csv(ohlc_csv_filename, index=False)
+                print(f"💾 Combined OHLC data saved to: {ohlc_csv_filename}")
+                print(f"📊 Total records: {len(combined_ohlc_df)}")
+            else:
+                print("⚠️ No instrument history data collected")
             
-            # Save results to CSV
-            # csv_filename = f"results/firstFIlterResults-{str(end_date)[0:10]}.csv"
-            # resultFrame.to_csv(csv_filename, index=False)
-            # print(f"💾 Results saved to: {csv_filename}")
-            # Return comprehensive results
             return {
                 'success': True,
                 'total_instruments_available': len(instruments),
@@ -441,7 +461,8 @@ class Filter1:
         print("=" * 50)
         
         # Fetch instruments and historical data
-        fetch_result = self.fetch_instruments_and_historical_data(max_instruments)
+        #fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-indices.csv", output_file_path="results/ohlc-nse-indices.csv")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-other-instruments.csv", output_file_path="results/ohlc-nse-other-instruments.csv")
         
         if not fetch_result['success']:
             return fetch_result

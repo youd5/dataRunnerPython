@@ -2,7 +2,7 @@
   "success": true,
   "fetch_result": {
     "success": true,
-    "total_instruments_available": 117,
+    "total_instruments_available": 2659,
     "processed_instruments": 21,
     "instruments": "processed_instruments",
     "historical_data": "historical_data_results",
