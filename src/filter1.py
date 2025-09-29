@@ -219,6 +219,8 @@ class Filter1:
             # Get instruments data (from CSV cache or API)
             #instruments_result = self.get_instruments_data()
             instruments_result = self.fetch_instruments_list_from_file("results/instruments/nse-indices.csv")
+            #instruments_result = self.fetch_instruments_list_from_file("results/instruments/nse-other-instruments.csv")
+            
             
             #self.process_csv()
             
@@ -237,7 +239,7 @@ class Filter1:
             start_date = (datetime.now() - timedelta(days=8)).strftime("%Y-%m-%d")
             resultFrame = pd.DataFrame(columns=['Symbol', 'name', 'token', "weekAvgVol"])
             count = 0
-            max_instruments = 50
+            max_instruments = 5
             print(f"📅 Date range: {start_date} to {end_date}")
             print(f"🔄 Processing up to {max_instruments} instruments...")
             
@@ -266,21 +268,35 @@ class Filter1:
                             print(f"   ✅ Historical data fetched: {historical_result['count']} data points")
 
                             historyData = pd.DataFrame(historical_result['data'])
-                            print("historyData\n", historyData)
+                            print(f"historyData {trading_symbol}, {instrument_token} \n", historyData)
 
-                            weekAvgVol = round(historyData["volume"].mean(), 2)
-                            weekAvgClose = round(historyData["close"].mean(), 2)
-                            print("weekAvgVol, weekAvgClose", weekAvgVol, weekAvgClose)
+                            # Create dataframe with trading_symbol, instrument_token, and all historyData columns
+                            if not historyData.empty:
+                                # Create a new dataframe with all the data
+                                instrument_history_df = historyData.copy()
+                                
+                                # Add trading_symbol and instrument_token as the first two columns
+                                instrument_history_df.insert(0, 'instrument_token', instrument_token)
+                                instrument_history_df.insert(0, 'trading_symbol', trading_symbol)
+
+                                print(instrument_history_df)
+                                
+                            else:
+                                print(f"⚠️ No historical data available for {trading_symbol}")
+
+                            # weekAvgVol = round(historyData["volume"].mean(), 2)
+                            # weekAvgClose = round(historyData["close"].mean(), 2)
+                            #print("weekAvgVol, weekAvgClose", weekAvgVol, weekAvgClose)
                             # skip scripts with Volume less than 300000
-                            if weekAvgVol > 200000:
-                                print("skipping low volume -- " + trading_symbol)
-                                continue
-                            if weekAvgClose < 30:
-                                print("skipping low price -- " + trading_symbol)
-                                continue
-                            print("adding data to resultFrame -- " + trading_symbol)
-                            resultFrame.loc[count] = [trading_symbol, trading_symbol, str(instrument_token), weekAvgVol]
-                            count += 1
+                            # if weekAvgVol > 200000:
+                            #     print("skipping low volume -- " + trading_symbol)
+                            #     continue
+                            # if weekAvgClose < 30:
+                            #     print("skipping low price -- " + trading_symbol)
+                            #     continue
+                            # print("adding data to resultFrame -- " + trading_symbol)
+                            # resultFrame.loc[count] = [trading_symbol, trading_symbol, str(instrument_token), weekAvgVol]
+                            # count += 1
                             
                         else:
                             print(f"   ❌ Failed to fetch historical data: {historical_result['error']}")
@@ -291,18 +307,18 @@ class Filter1:
                 except Exception as e:
                     print(f"   ❌ Error processing instrument: {e}")
                     continue
-            print("resultFrame\n", resultFrame)
+            # print("resultFrame\n", resultFrame)
             
             # Create results directory if it doesn't exist
-            results_dir = "results"
-            if not os.path.exists(results_dir):
-                os.makedirs(results_dir)
-                print(f"📁 Created directory: {results_dir}")
+            # results_dir = "results"
+            # if not os.path.exists(results_dir):
+            #     os.makedirs(results_dir)
+            #     print(f"📁 Created directory: {results_dir}")
             
             # Save results to CSV
-            csv_filename = f"results/firstFIlterResults-{str(end_date)[0:10]}.csv"
-            resultFrame.to_csv(csv_filename, index=False)
-            print(f"💾 Results saved to: {csv_filename}")
+            # csv_filename = f"results/firstFIlterResults-{str(end_date)[0:10]}.csv"
+            # resultFrame.to_csv(csv_filename, index=False)
+            # print(f"💾 Results saved to: {csv_filename}")
             # Return comprehensive results
             return {
                 'success': True,
@@ -430,28 +446,12 @@ class Filter1:
         if not fetch_result['success']:
             return fetch_result
         
-        # Analyze historical data
-        analysis_result = self.analyze_historical_data(fetch_result['historical_data'])
         
         # Combine results
         final_result = {
             'success': True,
-            'fetch_result': fetch_result,
-            'analysis_result': analysis_result,
-            'summary': {
-                'total_instruments_available': fetch_result['total_instruments_available'],
-                'processed_instruments': fetch_result['processed_instruments'],
-                'successful_historical_data': len([r for r in fetch_result['historical_data'] if r.get('historical_data')]),
-                'analyzed_instruments': analysis_result.get('total_analyzed', 0)
-            }
+            'fetch_result': fetch_result
         }
-        
-        print(f"\n📊 Filter1 Summary:")
-        print(f"   Total NSE instruments available: {final_result['summary']['total_instruments_available']}")
-        print(f"   Processed instruments: {final_result['summary']['processed_instruments']}")
-        print(f"   Successful historical data fetches: {final_result['summary']['successful_historical_data']}")
-        print(f"   Analyzed instruments: {final_result['summary']['analyzed_instruments']}")
-        
         return final_result
 
 def main():
