@@ -80,6 +80,123 @@ class Filter1:
         
         return instruments_result
     
+    def process_csv(self) -> Dict[str, Any]:
+        """
+        Get instruments data either from CSV cache or NSE API.
+        
+        Returns:
+            Dict[str, Any]: Instruments result in standard format
+        """
+        # Check if instruments CSV file exists
+        instruments_csv_path = "results/instruments/nse-instruments.csv"
+        
+        if os.path.exists(instruments_csv_path):
+            print(f"📁 Found existing instruments file: {instruments_csv_path}")
+            print("📊 Loading instruments from CSV file...")
+            
+            # Load instruments from CSV
+            instruments_df = pd.read_csv(instruments_csv_path)
+            instruments = instruments_df.to_dict('records')
+            
+            print(f"✅ Loaded {len(instruments)} instruments from CSV file")
+            
+            # Create instruments_result in the expected format
+            instruments_result = {
+                'success': True,
+                'instruments': instruments
+            }
+            
+            # Iterate over instruments and separate INDICES sector
+            print(f"🔄 Processing {len(instruments)} instruments...")
+            
+            # Create separate dataframes for different sectors
+            indices_df = pd.DataFrame()
+            other_instruments_df = pd.DataFrame()
+            
+            for i, instrument in enumerate(instruments):
+                try:
+                    # Get sector information
+                    sector = instrument.get('segment', 'Unknown')
+                    instrument_type = instrument.get('instrument_type', 'Unknown')
+                    
+                    # Convert instrument to DataFrame row
+                    instrument_row = pd.DataFrame([instrument])
+                    
+                    # Check if it's an INDICES sector
+                    if sector == 'INDICES':
+                        if indices_df.empty:
+                            indices_df = instrument_row
+                        else:
+                            indices_df = pd.concat([indices_df, instrument_row], ignore_index=True)
+                        print(f"📊 Found INDICES instrument: {instrument.get('tradingsymbol', 'Unknown')}")
+                    else:
+                        # Check for lot size - only add to other instruments if lot_size == 1
+                        lot_size = instrument.get('lot_size', 0)
+                        # Check for "name" - do not add to other instruments if name is empty
+                        name = instrument.get('name', '')
+                        
+                        if lot_size == 1 and name.strip() != '':
+                            if other_instruments_df.empty:
+                                other_instruments_df = instrument_row
+                            else:
+                                other_instruments_df = pd.concat([other_instruments_df, instrument_row], ignore_index=True)
+                            print(f"📊 Added instrument with lot_size=1 and valid name: {instrument.get('tradingsymbol', 'Unknown')}")
+                        else:
+                            # Determine reason for skipping
+                            if lot_size != 1:
+                                print(f"⏭️ Skipped instrument with lot_size={lot_size}: {instrument.get('tradingsymbol', 'Unknown')}")
+                            elif name.strip() == '':
+                                print(f"⏭️ Skipped instrument with empty name: {instrument.get('tradingsymbol', 'Unknown')}")
+                            else:
+                                print(f"⏭️ Skipped instrument: {instrument.get('tradingsymbol', 'Unknown')}")
+                    
+                    # Progress indicator
+                    if (i + 1) % 500 == 0:
+                        print(f"   Processed {i + 1}/{len(instruments)} instruments...")
+                        
+                except Exception as e:
+                    print(f"   ⚠️ Error processing instrument {i}: {e}")
+                    continue
+            
+            # Save separated dataframes
+            if not indices_df.empty:
+                indices_csv_path = "results/instruments/nse-indices.csv"
+                indices_df.to_csv(indices_csv_path, index=False)
+                print(f"💾 INDICES instruments saved to: {indices_csv_path}")
+                print(f"📊 Total INDICES instruments: {len(indices_df)}")
+            
+            if not other_instruments_df.empty:
+                other_csv_path = "results/instruments/nse-other-instruments.csv"
+                other_instruments_df.to_csv(other_csv_path, index=False)
+                print(f"💾 Other instruments saved to: {other_csv_path}")
+                print(f"📊 Total other instruments: {len(other_instruments_df)}")
+            
+            print(f"✅ Instrument processing completed!")
+            print(f"   📊 INDICES sector: {len(indices_df)} instruments")
+            print(f"   📊 Other sectors: {len(other_instruments_df)} instruments")
+            
+            return instruments_result
+
+
+    def fetch_instruments_list_from_file(self, file_path: str) -> Dict[str, Any]:
+        """
+        Fetch instruments from a file.
+        """
+        print(f"Fetching instruments from file: {file_path}")
+        instruments_df = pd.read_csv(file_path)
+        instruments = instruments_df.to_dict('records')
+            
+        print(f"✅ Loaded {len(instruments)} instruments from CSV file")
+            
+            # Create instruments_result in the expected format
+        instruments_result = {
+            'success': True,
+            'instruments': instruments
+        }
+        return instruments_result
+    
+
+
     def fetch_instruments_and_historical_data(self, max_instruments: int = 5) -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
@@ -100,7 +217,10 @@ class Filter1:
         
         try:
             # Get instruments data (from CSV cache or API)
-            instruments_result = self.get_instruments_data()
+            #instruments_result = self.get_instruments_data()
+            instruments_result = self.fetch_instruments_list_from_file("results/instruments/nse-indices.csv")
+            
+            #self.process_csv()
             
             if not instruments_result['success']:
                 return {
@@ -117,7 +237,7 @@ class Filter1:
             start_date = (datetime.now() - timedelta(days=8)).strftime("%Y-%m-%d")
             resultFrame = pd.DataFrame(columns=['Symbol', 'name', 'token', "weekAvgVol"])
             count = 0
-            max_instruments = 5
+            max_instruments = 50
             print(f"📅 Date range: {start_date} to {end_date}")
             print(f"🔄 Processing up to {max_instruments} instruments...")
             
