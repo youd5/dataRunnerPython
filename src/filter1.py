@@ -237,7 +237,7 @@ class Filter1:
             
             # Calculate date range (today - 8 days to today)
             end_date = datetime.now().strftime("%Y-%m-%d")
-            start_date = (datetime.now() - timedelta(days=8)).strftime("%Y-%m-%d")
+            start_date = (datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d")
             resultFrame = pd.DataFrame(columns=['Symbol', 'name', 'token', "weekAvgVol"])
             count = 0
             max_instruments = 5
@@ -273,40 +273,44 @@ class Filter1:
                             print(f"   ✅ Historical data fetched: {historical_result['count']} data points")
 
                             historyData = pd.DataFrame(historical_result['data'])
-                            print(f"historyData {trading_symbol}, {instrument_token} \n", historyData)
+                            # print(f"historyData {trading_symbol}, {instrument_token} \n", historyData)
 
                             # Create dataframe with trading_symbol, instrument_token, and all historyData columns
                             if not historyData.empty:
                                 # Create a new dataframe with all the data
+                                weekAvgVol = round(historyData["volume"].mean(), 2)
+                                weekAvgClose = round(historyData["close"].mean(), 2)
+                                print("weekAvgVol, weekAvgClose", weekAvgVol, weekAvgClose)
+                                # skip scripts with Volume less than 200000
+                                if weekAvgVol < 200000 and weekAvgVol > 0 and weekAvgClose > 30:
+                                    print("skipping low volume or low price -- " + trading_symbol)
+                                    continue
                                 instrument_history_df = historyData.copy()
                                 
                                 # Add trading_symbol and instrument_token as the first two columns
                                 instrument_history_df.insert(0, 'instrument_token', instrument_token)
                                 instrument_history_df.insert(0, 'trading_symbol', trading_symbol)
 
+                                # add "change" and "changePercent" columns to instrument_history_df, round to 2 decimal places
+                                # Calculate change as current close - previous close, but first row uses close - open
+                                instrument_history_df['change'] = (instrument_history_df['close'] - instrument_history_df['close'].shift(1)).round(2)
+                                instrument_history_df.loc[0, 'change'] = (instrument_history_df.loc[0, 'close'] - instrument_history_df.loc[0, 'open']).round(2)
+                                instrument_history_df['changePercent'] = ((instrument_history_df['change'] / instrument_history_df['close'].shift(1)) * 100).round(2)
+                                instrument_history_df.loc[0, 'changePercent'] = ((instrument_history_df.loc[0, 'change'] / instrument_history_df.loc[0, 'open']) * 100).round(2)
+                                instrument_history_df['marketCap'] = "Unknown"
+                                # insert "trend" column to instrument_history_df, value is "UP" if changePercent > 0, "DOWN" if changePercent < 0, "NEUTRAL" if changePercent == 0
+                                instrument_history_df['trend'] = "UP"
+                                instrument_history_df['sector'] = "Unknown"
+
                                 # Append to the list of all instrument histories
                                 all_instrument_histories.append(instrument_history_df)
                                 
                                 print(f"📊 Added {trading_symbol} data to collection. Shape: {instrument_history_df.shape}")
-                                print(instrument_history_df)
+                                # print(instrument_history_df)
                                 
                             else:
                                 print(f"⚠️ No historical data available for {trading_symbol}")
 
-                            # weekAvgVol = round(historyData["volume"].mean(), 2)
-                            # weekAvgClose = round(historyData["close"].mean(), 2)
-                            #print("weekAvgVol, weekAvgClose", weekAvgVol, weekAvgClose)
-                            # skip scripts with Volume less than 300000
-                            # if weekAvgVol > 200000:
-                            #     print("skipping low volume -- " + trading_symbol)
-                            #     continue
-                            # if weekAvgClose < 30:
-                            #     print("skipping low price -- " + trading_symbol)
-                            #     continue
-                            # print("adding data to resultFrame -- " + trading_symbol)
-                            # resultFrame.loc[count] = [trading_symbol, trading_symbol, str(instrument_token), weekAvgVol]
-                            # count += 1
-                            
                         else:
                             print(f"   ❌ Failed to fetch historical data: {historical_result['error']}")
                             
@@ -332,8 +336,8 @@ class Filter1:
                     os.makedirs(results_dir)
                     print(f"📁 Created directory: {results_dir}")
                 
-                # Save combined OHLC data to CSV
-                ohlc_csv_filename = f"{output_file_path}"
+                # Save combined OHLC data to CSV, add date to the output file name
+                ohlc_csv_filename = f"{output_file_path}_{end_date}.csv"
                 combined_ohlc_df.to_csv(ohlc_csv_filename, index=False)
                 print(f"💾 Combined OHLC data saved to: {ohlc_csv_filename}")
                 print(f"📊 Total records: {len(combined_ohlc_df)}")
@@ -461,8 +465,8 @@ class Filter1:
         print("=" * 50)
         
         # Fetch instruments and historical data
-        #fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-indices.csv", output_file_path="results/ohlc-nse-indices.csv")
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-other-instruments.csv", output_file_path="results/ohlc-nse-other-instruments.csv")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-indices.csv", output_file_path="results/ohlc-nse-indices")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-other-instruments.csv", output_file_path="results/ohlc-nse-other-instruments")
         
         if not fetch_result['success']:
             return fetch_result
