@@ -197,7 +197,7 @@ class Filter1:
     
 
 
-    def fetch_instruments_and_historical_data(self, instruments_file_path: str = "results/instruments/nse-indices.csv", output_file_path: str = "results/ohlc-nse-indices.csv") -> Dict[str, Any]:
+    def fetch_instruments_and_historical_data(self, instruments_file_path: str = "results/instruments/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv") -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
         
@@ -282,8 +282,11 @@ class Filter1:
                                 weekAvgClose = round(historyData["close"].mean(), 2)
                                 print("weekAvgVol, weekAvgClose", weekAvgVol, weekAvgClose)
                                 # skip scripts with Volume less than 200000
-                                if weekAvgVol < 200000 and weekAvgVol > 0 and weekAvgClose > 30:
-                                    print("skipping low volume or low price -- " + trading_symbol)
+                                if weekAvgVol < 100000 and weekAvgVol > 0:
+                                    print("skipping low volume or zero volume -- " + trading_symbol)
+                                    continue
+                                if weekAvgClose < 30:
+                                    print("skipping low price -- " + trading_symbol)
                                     continue
                                 instrument_history_df = historyData.copy()
                                 
@@ -337,7 +340,7 @@ class Filter1:
                     print(f"📁 Created directory: {results_dir}")
                 
                 # Save combined OHLC data to CSV, add date to the output file name
-                ohlc_csv_filename = f"{output_file_path}_{end_date}.csv"
+                ohlc_csv_filename = f"{results_dir}/{end_date}_{output_file_path}"
                 combined_ohlc_df.to_csv(ohlc_csv_filename, index=False)
                 print(f"💾 Combined OHLC data saved to: {ohlc_csv_filename}")
                 print(f"📊 Total records: {len(combined_ohlc_df)}")
@@ -465,8 +468,8 @@ class Filter1:
         print("=" * 50)
         
         # Fetch instruments and historical data
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-indices.csv", output_file_path="results/ohlc-nse-indices")
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-other-instruments.csv", output_file_path="results/ohlc-nse-other-instruments")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-indices.csv", output_file_path="ohlc-nse-indices.csv")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv")
         
         if not fetch_result['success']:
             return fetch_result
