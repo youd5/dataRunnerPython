@@ -127,8 +127,8 @@ class Filter2:
         df['ma_200'] = round(df['close'].rolling(window=200).mean(), 2)
         df['ma_150'] = round(df['close'].rolling(window=150).mean(), 2)
         df['ma_50'] = round(df['close'].rolling(window=50).mean(), 2)
-        df['52wh'] = round(df['close'].rolling(window=250).max(), 2) 
-        df['52wl'] = round(df['close'].rolling(window=250).min(), 2)
+        df['52wh'] = round(df['close'].rolling(window=245).max(), 2) 
+        df['52wl'] = round(df['close'].rolling(window=245).min(), 2)
         
         
         return df
@@ -254,8 +254,9 @@ class Filter2:
                 # Check if above 200-day and 50-day MA and 200-day MA is above 50-day MA
                 if not self.is_minervini_condition_fulfilled(hist_df):
                     continue
-                latest = hist_df.iloc[-1]
                 
+                latest = hist_df.iloc[-1]
+                print(f"adding Latest to filtered instruments: {trading_symbol}")
                 filtered_instruments.append({
                     'trading_symbol': trading_symbol,
                     'instrument_token': instrument_token,
