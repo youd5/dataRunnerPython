@@ -224,6 +224,10 @@
             <a href="/" class="btn btn-primary" onclick="window.location.href='/'">🏠 Back to Home</a>
             <a href="/api/kite/profile" class="btn btn-secondary" target="_blank">👤 View Profile</a>
         </div>
+
+        <p style="margin-top: 2rem; color: #666; font-size: 0.9rem;">
+            Redirecting to homepage in <span id="countdown">5</span> seconds...
+        </p>
     </div>
 
     <script>
@@ -246,6 +250,20 @@
                 alert('Could not copy token. Please copy manually.');
             });
         }
+
+        // Auto-redirect to homepage after 5 seconds
+        let countdown = 0;
+        const countdownElement = document.getElementById('countdown');
+        
+        const countdownInterval = setInterval(function() {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                window.location.href = '/';
+            }
+        }, 1000);
     </script>
 </body>
 </html>
