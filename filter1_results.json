@@ -7,8 +7,8 @@
     "instruments": "processed_instruments",
     "historical_data": "historical_data_results",
     "date_range": {
-      "from_date": "2025-10-04",
-      "to_date": "2025-10-14"
+      "from_date": "2025-10-17",
+      "to_date": "2025-10-27"
     },
     "interval": "day",
     "exchange": "NSE"

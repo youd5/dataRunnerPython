@@ -297,12 +297,13 @@ class Filter3:
                     
                     filtered_instruments.append({
                         'trading_symbol': trading_symbol,
+                        'name': trading_symbol,
                         'instrument_token': instrument_token,
-                        'current_close': latest['close'],
+                        'currentClose': latest['close'],
                         'current_high': latest['high'],
-                        'last_pivot_high': last_pivot['high'],
-                        'last_pivot_date': str(last_pivot['date'])[0:10],
-                        'current_date': str(latest['date'])[0:10],
+                        'latestPivot': last_pivot['high'],
+                        'lastPivotDate': str(last_pivot['date'])[0:10],
+                        'currentDate': str(latest['date'])[0:10],
                         'above_pivot_by': round(latest['close'] - last_pivot['high'], 2),
                         'above_pivot_percent': round(((latest['close'] - last_pivot['high']) / last_pivot['high']) * 100, 2),
                         'pivot_count': int(pivot_count)
@@ -367,7 +368,7 @@ def main():
     # - lookback: Number of periods to look back/forward for pivot detection (default: 5)
     
     result_df = filter3.run_filter(
-        csv_path="results/filter2_above_200ma_and_50ma_2025-10-09.csv",
+        csv_path=f"results/{datetime.now().strftime('%Y-%m-%d')}_filter2_minervini_filter_list.csv",
         output_path=None,  # Auto-generates filename
         max_instruments=None,  # Process all instruments (or set to e.g., 10 for testing)
         lookback=5  # Pivot lookback period

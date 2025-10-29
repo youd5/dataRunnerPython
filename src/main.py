@@ -5,9 +5,13 @@ Main entry point for the Python web service with Zerodha Kite integration.
 
 from flask import Flask, render_template, jsonify, request, redirect, url_for, send_from_directory
 from kite_service import KiteService
+from filter1 import Filter1
+from filter2 import Filter2
+from filter3 import Filter3
 import os
 import urllib.parse
 import re
+from datetime import datetime
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 
@@ -79,8 +83,75 @@ def positions():
 
 @app.route('/algorithm-triggered')
 def algorithm_triggered():
-    """Render the algorithm triggered page."""
-    return render_template('algorithm_triggered.html')
+    """Render the algorithm triggered page with results from all filters."""
+    try:
+        print("🚀 Starting algorithm trigger sequence...")
+        
+        # Step 1: Run Filter1 to fetch instruments and historical data
+        print("📊 Running Filter1...")
+        try:
+            filter1_instance = Filter1()
+        except ValueError as e:
+            error_msg = f"Kite API credentials not configured: {str(e)}. Please check your .env file."
+            print(f"❌ {error_msg}")
+            return render_template('algorithm_triggered.html', error=error_msg)
+        
+        if not filter1_instance.kite_service:
+            return render_template('algorithm_triggered.html', 
+                                 error="KiteService not initialized. Please login first.")
+        
+        filter1_result = filter1_instance.run_filter1(max_instruments=5)
+        
+        if not filter1_result.get('success'):
+            return render_template('algorithm_triggered.html',
+                                 error=f"Filter1 failed: {filter1_result.get('error', 'Unknown error')}")
+        
+        print("✅ Filter1 completed")
+        
+        # Step 2: Run Filter2 to apply Minervini conditions
+        print("📊 Running Filter2...")
+        filter2_instance = Filter2()
+        
+        # Find the latest ohlc CSV file
+        results_dir = "results"
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        output_file_path = "ohlc-nse-other-instruments.csv"
+        ohlc_csv_path = f"{results_dir}/{end_date}_{output_file_path}"
+        
+        if not os.path.exists(ohlc_csv_path):
+            # Try without date suffix
+            ohlc_csv_path = "results/ohlc-nse-other-instruments.csv"
+        
+        print(f"📁 Using CSV file: {ohlc_csv_path}")
+        
+        filter2_result_df = filter2_instance.run_filter(
+            csv_path=ohlc_csv_path,
+            max_instruments=None  # Limit for web interface
+        )
+        if filter2_result_df.empty:
+            return render_template('algorithm_triggered.html',
+                                 error=f"Filter2 failed: No instruments passed Filter2 conditions")
+        
+        print("📊 Running Filter3...")
+        filter3_instance = Filter3()
+        
+        filter3_result_df = filter3_instance.run_filter(
+            csv_path=f"results/{datetime.now().strftime('%Y-%m-%d')}_filter2_minervini_filter_list.csv",
+            output_path=None,  # Auto-generates filename
+            max_instruments=None,  # Process all instruments (or set to e.g., 10 for testing)
+            lookback=5  # Pivot lookback period
+        )
+        if filter3_result_df.empty:
+            return render_template('algorithm_triggered.html',
+                                 error=f"Filter3 failed: No instruments passed Filter3 conditions") 
+        
+        return render_template('algorithm_triggered.html')
+    except Exception as e:
+        import traceback
+        error_msg = f"Error running algorithm: {str(e)}"
+        print(f"❌ {error_msg}")
+        traceback.print_exc()
+        return render_template('algorithm_triggered.html', error=error_msg)
 
 @app.route('/chart/')
 def chart():

@@ -15,6 +15,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from kite_service import KiteService
 
+# TODO: add a column to the final csv to include how much percentage away from the 52 week high is the current price and sort in descending order of this column 
+
+
 
 class Filter2:
     """Filter2 class for filtering instruments below 200-day moving average."""
@@ -129,6 +132,12 @@ class Filter2:
         df['ma_50'] = round(df['close'].rolling(window=50).mean(), 2)
         df['52wh'] = round(df['close'].rolling(window=245).max(), 2) 
         df['52wl'] = round(df['close'].rolling(window=245).min(), 2)
+
+        max_close_in_52_weeks = max(df['close'][:len(df) - 1])  # max value excluding today
+        if df["close"][len(df) - 1] > max_close_in_52_weeks:
+            df['new_52_week_high'] = True
+        else:
+            df['new_52_week_high'] = False
         
         
         return df
@@ -256,15 +265,25 @@ class Filter2:
                     continue
                 
                 latest = hist_df.iloc[-1]
+                
+                # Calculate % away from 52-week high
+                if pd.notna(latest['52wh']) and latest['52wh'] > 0:
+                    pct_away_from_52wh = round(((latest['close'] - latest['52wh']) / latest['52wh']) * 100, 2)
+                else:
+                    pct_away_from_52wh = None
+                
                 print(f"adding Latest to filtered instruments: {trading_symbol}")
                 filtered_instruments.append({
                     'trading_symbol': trading_symbol,
+                    'name': trading_symbol,
                     'instrument_token': instrument_token,
-                    'latest_close': latest['close'],
+                    'currentClose': latest['close'],
                     'ma_200': latest['ma_200'],
                     'ma_50': latest['ma_50'],
                     '52wh': latest['52wh'],
                     '52wl': latest['52wl'],
+                    'new_52_week_high': latest['new_52_week_high'],
+                    'pct_away_from_52wh': pct_away_from_52wh,
                     'date': str(latest['date'])[0:10] # get only date part
                 })
                 
@@ -276,6 +295,10 @@ class Filter2:
         
         # Create DataFrame from filtered instruments
         result_df = pd.DataFrame(filtered_instruments)
+        
+        # Sort by % away from 52-week high in descending order
+        if not result_df.empty and 'pct_away_from_52wh' in result_df.columns:
+            result_df = result_df.sort_values('pct_away_from_52wh', ascending=False, na_position='last')
         
         print(f"\n" + "="*80)
         print(f"✅ Filter complete!")
@@ -315,9 +338,13 @@ def main():
     # - csv_path: Path to input CSV file
     # - output_path: Path to save results
     # - max_instruments: Limit number of instruments to process (useful for testing)
-    
+    results_dir = "results"
+    end_date = datetime.now().strftime("%Y-%m-%d")
+    output_file_path = "ohlc-nse-other-instruments.csv"
+    ohlc_csv_filename = f"{results_dir}/{end_date}_{output_file_path}"
+
     result_df = filter2.run_filter(
-        csv_path="results/ohlc-nse-other-instruments_2025-10-10.csv",
+        csv_path=ohlc_csv_filename,
         output_path=None,  # Auto-generates filename
         max_instruments=None  # Process all instruments (or set to e.g., 10 for testing)
     )
