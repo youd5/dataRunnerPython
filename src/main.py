@@ -4,7 +4,7 @@ Main entry point for the Python web service with Zerodha Kite integration.
 """
 
 from flask import Flask, render_template, jsonify, request, redirect, url_for, send_from_directory
-from kite_service import KiteService, ENV_FILE
+from kite_service import KiteService, ENV_FILE, RESULTS_DIR
 from filter1 import Filter1
 from filter2 import Filter2
 from filter3 import Filter3
@@ -106,14 +106,14 @@ def algorithm_triggered():
         filter2_instance = Filter2()
         
         # Find the latest ohlc CSV file
-        results_dir = "results"
+        results_dir = RESULTS_DIR
         end_date = datetime.now().strftime("%Y-%m-%d")
         output_file_path = "ohlc-nse-other-instruments.csv"
         ohlc_csv_path = f"{results_dir}/{end_date}_{output_file_path}"
         
         if not os.path.exists(ohlc_csv_path):
             # Try without date suffix
-            ohlc_csv_path = "results/ohlc-nse-other-instruments.csv"
+            ohlc_csv_path = f"{RESULTS_DIR}/ohlc-nse-other-instruments.csv"
         
         print(f"📁 Using CSV file: {ohlc_csv_path}")
         
@@ -129,7 +129,7 @@ def algorithm_triggered():
         filter3_instance = Filter3()
         
         filter3_result_df = filter3_instance.run_filter(
-            csv_path=f"results/{datetime.now().strftime('%Y-%m-%d')}_filter2_minervini_filter_list.csv",
+            csv_path=f"{RESULTS_DIR}/{datetime.now().strftime('%Y-%m-%d')}_filter2_minervini_filter_list.csv",
             output_path=None,  # Auto-generates filename
             max_instruments=None,  # Process all instruments (or set to e.g., 10 for testing)
             lookback=5  # Pivot lookback period

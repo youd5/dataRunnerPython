@@ -13,7 +13,7 @@ from typing import Dict, List, Any
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.dirname(__file__))
 
-from kite_service import KiteService
+from kite_service import KiteService, RESULTS_DIR
 
 class Filter1:
     """Filter1 class for fetching instruments and historical data."""
@@ -35,7 +35,7 @@ class Filter1:
             Dict[str, Any]: Instruments result in standard format
         """
         # Check if instruments CSV file exists
-        instruments_csv_path = "results/instruments/nse-instruments.csv"
+        instruments_csv_path = f"{RESULTS_DIR}/instruments/nse-instruments.csv"
         
         if os.path.exists(instruments_csv_path):
             print(f"📁 Found existing instruments file: {instruments_csv_path}")
@@ -60,13 +60,13 @@ class Filter1:
             instruments = instruments_result['instruments']
             
             # Only save to CSV if we fetched from API (not from existing CSV)
-            instruments_csv_path = "results/instruments/nse-instruments.csv"
+            instruments_csv_path = f"{RESULTS_DIR}/instruments/nse-instruments.csv"
             if not os.path.exists(instruments_csv_path):
                 # Save instruments to CSV
                 instruments_df = pd.DataFrame(instruments)
                 
                 # Create results/instruments directory if it doesn't exist
-                instruments_dir = "results/instruments"
+                instruments_dir = f"{RESULTS_DIR}/instruments"
                 if not os.path.exists(instruments_dir):
                     os.makedirs(instruments_dir)
                     print(f"📁 Created directory: {instruments_dir}")
@@ -88,7 +88,7 @@ class Filter1:
             Dict[str, Any]: Instruments result in standard format
         """
         # Check if instruments CSV file exists
-        instruments_csv_path = "results/instruments/nse-instruments.csv"
+        instruments_csv_path = f"{RESULTS_DIR}/instruments/nse-instruments.csv"
         
         if os.path.exists(instruments_csv_path):
             print(f"📁 Found existing instruments file: {instruments_csv_path}")
@@ -160,13 +160,13 @@ class Filter1:
             
             # Save separated dataframes
             if not indices_df.empty:
-                indices_csv_path = "results/instruments/nse-indices.csv"
+                indices_csv_path = f"{RESULTS_DIR}/instruments/nse-indices.csv"
                 indices_df.to_csv(indices_csv_path, index=False)
                 print(f"💾 INDICES instruments saved to: {indices_csv_path}")
                 print(f"📊 Total INDICES instruments: {len(indices_df)}")
             
             if not other_instruments_df.empty:
-                other_csv_path = "results/instruments/nse-other-instruments.csv"
+                other_csv_path = f"{RESULTS_DIR}/instruments/nse-other-instruments.csv"
                 other_instruments_df.to_csv(other_csv_path, index=False)
                 print(f"💾 Other instruments saved to: {other_csv_path}")
                 print(f"📊 Total other instruments: {len(other_instruments_df)}")
@@ -197,12 +197,12 @@ class Filter1:
     
 
 
-    def fetch_instruments_and_historical_data(self, instruments_file_path: str = "results/instruments/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv") -> Dict[str, Any]:
+    def fetch_instruments_and_historical_data(self, instruments_file_path: str = f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv") -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
         
         Args:
-            instruments_file_path (str): Path to the instruments file (default: "results/instruments/nse-indices.csv")
+            instruments_file_path (str): Path to the instruments file (default: "results/instruments/nse-indices.csv" under the project root)
             max_instruments (int): Maximum number of instruments to process (default: 5)
             
         Returns:
@@ -219,8 +219,13 @@ class Filter1:
         try:
             # Get instruments data (from CSV cache or API)
             #instruments_result = self.get_instruments_data()
+            if not os.path.exists(instruments_file_path):
+                # Instrument lists are generated, not committed: download from Kite and split them
+                print(f"📁 {instruments_file_path} not found, building instrument lists...")
+                self.get_instruments_data()
+                self.process_csv()
             instruments_result = self.fetch_instruments_list_from_file(instruments_file_path)
-            #instruments_result = self.fetch_instruments_list_from_file("results/instruments/nse-other-instruments.csv")
+            #instruments_result = self.fetch_instruments_list_from_file(f"{RESULTS_DIR}/instruments/nse-other-instruments.csv")
             
             
             #self.process_csv()
@@ -334,7 +339,7 @@ class Filter1:
                 print(f"📊 Unique instruments: {combined_ohlc_df['trading_symbol'].nunique()}")
                 
                 # Create results directory if it doesn't exist
-                results_dir = "results"
+                results_dir = RESULTS_DIR
                 if not os.path.exists(results_dir):
                     os.makedirs(results_dir)
                     print(f"📁 Created directory: {results_dir}")
@@ -468,8 +473,8 @@ class Filter1:
         print("=" * 50)
         
         # Fetch instruments and historical data
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-indices.csv", output_file_path="ohlc-nse-indices.csv")
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path="results/instruments/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path="ohlc-nse-indices.csv")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv")
         
         if not fetch_result['success']:
             return fetch_result
