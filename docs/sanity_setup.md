@@ -13,7 +13,7 @@ SANITY_API_VERSION=2025-02-19          # optional
 
 ## Documents
 
-Every CSV becomes `screenerSnapshot` documents, one per dataset per date, with a deterministic id `screenerSnapshot.<dataset>.<date>`. Uploads use `createOrReplace`, so re-running a day overwrites it.
+Every CSV becomes `screenerSnapshot` documents, one per dataset per date, with a deterministic id `screenerSnapshot-<dataset>-<date>`. Uploads use `createOrReplace`, so re-running a day overwrites it. Ids must not contain dots: Sanity treats dotted ids as private even in a public dataset, so the website could not read them. Each upload also deletes the dotted ids (`screenerSnapshot.<dataset>.<date>`) used by the first version.
 
 | dataset | source CSV | one document per | replaces Google Sheet |
 |---|---|---|---|

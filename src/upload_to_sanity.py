@@ -8,8 +8,9 @@ Each dataset is stored as one `screenerSnapshot` document per date, holding the 
   - topStocks: Filter2 (Minervini trend template), one document per run date
   - breakouts: Filter3 (above last pivot), one document per run date
 
-Document ids are deterministic (`screenerSnapshot.<dataset>.<date>`) and written with
-createOrReplace, so re-running a day overwrites that day instead of duplicating it.
+Document ids are deterministic (`screenerSnapshot-<dataset>-<date>`) and written with
+createOrReplace, so re-running a day overwrites that day instead of duplicating it. Ids must
+not contain dots: Sanity treats dotted ids as private, even in a public dataset.
 
 Configuration comes from the root .env:
   SANITY_PROJECT_ID, SANITY_DATASET (default: production), SANITY_API_TOKEN (write token),
@@ -99,7 +100,7 @@ def build_documents(run_date, results_dir=RESULTS_DIR):
             for index, row in enumerate(date_rows):
                 row['_key'] = f'r{index}'
             documents.append({
-                '_id': f'{DOCUMENT_TYPE}.{dataset}.{date}',
+                '_id': f'{DOCUMENT_TYPE}-{dataset}-{date}',
                 '_type': DOCUMENT_TYPE,
                 'dataset': dataset,
                 'date': date,
@@ -147,17 +148,19 @@ class SanityUploader:
         """createOrReplace the documents, batching requests by size. Returns the count written."""
         batch, batch_bytes, written = [], 0, 0
         for document in documents:
-            mutation = {'createOrReplace': document}
+            # Earlier uploads used dotted ids, which the public website cannot read; drop them
+            legacy_id = f"{DOCUMENT_TYPE}.{document['dataset']}.{document['date']}"
+            mutation = [{'createOrReplace': document}, {'delete': {'id': legacy_id}}]
             size = len(json.dumps(mutation))
             if batch and batch_bytes + size > MAX_REQUEST_BYTES:
                 self._post(batch)
-                written += len(batch)
+                written += len(batch) // 2
                 batch, batch_bytes = [], 0
-            batch.append(mutation)
+            batch.extend(mutation)
             batch_bytes += size
         if batch:
             self._post(batch)
-            written += len(batch)
+            written += len(batch) // 2
         return written
 
 
