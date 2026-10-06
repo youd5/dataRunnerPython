@@ -5,12 +5,16 @@ Zerodha Kite API integration service.
 
 import os
 import json
+from pathlib import Path
 from typing import Dict, List, Optional, Any
 from kiteconnect import KiteConnect
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Single .env location at the project root, independent of the working directory
+ENV_FILE = Path(__file__).resolve().parent.parent / '.env'
+
+# Load environment variables; values in .env take precedence over stale shell exports
+load_dotenv(ENV_FILE, override=True)
 
 class KiteService:
     """Service class for Zerodha Kite API integration."""
