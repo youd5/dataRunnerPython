@@ -138,10 +138,7 @@ def algorithm_triggered():
             return render_template('algorithm_triggered.html',
                                  error=f"Filter3 failed: No instruments passed Filter3 conditions") 
         
-        results = filter3_result_df.sort_values('above_pivot_percent', ascending=False).to_dict('records')
-        return render_template('algorithm_triggered.html',
-                             results=results,
-                             filter2_count=len(filter2_result_df))
+        return render_template('algorithm_triggered.html')
     except Exception as e:
         import traceback
         error_msg = f"Error running algorithm: {str(e)}"
