@@ -4,7 +4,7 @@ Main entry point for the Python web service with Zerodha Kite integration.
 """
 
 from flask import Flask, render_template, jsonify, request, redirect, url_for, send_from_directory
-from kite_service import KiteService
+from kite_service import KiteService, ENV_FILE
 from filter1 import Filter1
 from filter2 import Filter2
 from filter3 import Filter3
@@ -17,23 +17,16 @@ app = Flask(__name__, static_folder='static', static_url_path='/static')
 
 def save_token_to_env(access_token):
     """Save the access token to the .env file."""
-    env_file = '.env'
+    env_file = ENV_FILE
     
     try:
-        # Read existing .env file
+        # Read existing .env file; never write placeholder credentials that could
+        # shadow the real ones
         if os.path.exists(env_file):
             with open(env_file, 'r') as f:
                 content = f.read()
         else:
-            # Create .env file with basic structure if it doesn't exist
-            content = """
-                        Zerodha Kite API Configuration
-                        KITE_API_KEY=your_api_key_here
-                        KITE_API_SECRET=your_api_secret_here
-                        KITE_ACCESS_TOKEN=
-                        KITE_REDIRECT_URL=http://localhost:8080/apis/broker/login/zerodha
-                        KITE_MODE=paper
-                    """
+            content = ''
         
         # Update or add KITE_ACCESS_TOKEN
         if 'KITE_ACCESS_TOKEN=' in content:
