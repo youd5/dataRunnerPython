@@ -8,6 +8,7 @@ from kite_service import KiteService, ENV_FILE, RESULTS_DIR
 from filter1 import Filter1
 from filter2 import Filter2
 from filter3 import Filter3
+from upload_to_sanity import push_results_to_sanity
 import os
 import urllib.parse
 import re
@@ -134,6 +135,11 @@ def algorithm_triggered():
             max_instruments=None,  # Process all instruments (or set to e.g., 10 for testing)
             lookback=5  # Pivot lookback period
         )
+
+        # Publish today's results to Sanity for the website (skipped if not configured)
+        print("📤 Pushing results to Sanity...")
+        push_results_to_sanity()
+
         if filter3_result_df.empty:
             return render_template('algorithm_triggered.html',
                                  error=f"Filter3 failed: No instruments passed Filter3 conditions") 

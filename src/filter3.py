@@ -376,6 +376,10 @@ def main():
     
     print("\n✅ Filter3 execution complete!")
 
+    # Publish today's results to Sanity for the website (skipped if not configured)
+    from upload_to_sanity import push_results_to_sanity
+    push_results_to_sanity()
+
 
 if __name__ == "__main__":
     main()
