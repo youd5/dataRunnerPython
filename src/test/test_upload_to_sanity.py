@@ -52,14 +52,14 @@ class BuildDocumentsTest(unittest.TestCase):
 
     def test_one_document_per_dataset_and_date(self):
         self.assertEqual(sorted(self.documents), [
-            'screenerSnapshot.allStocks.2026-10-05',
-            'screenerSnapshot.allStocks.2026-10-06',
-            'screenerSnapshot.breakouts.2026-10-06',
-            'screenerSnapshot.topStocks.2026-10-06',
+            'screenerSnapshot-allStocks-2026-10-05',
+            'screenerSnapshot-allStocks-2026-10-06',
+            'screenerSnapshot-breakouts-2026-10-06',
+            'screenerSnapshot-topStocks-2026-10-06',
         ])
 
     def test_ohlc_rows_split_by_candle_date(self):
-        latest = self.documents['screenerSnapshot.allStocks.2026-10-06']
+        latest = self.documents['screenerSnapshot-allStocks-2026-10-06']
         self.assertEqual(latest['rowCount'], 2)
         self.assertEqual([r['date'] for r in latest['rows']], ['2026-10-06', '2026-10-06'])
         self.assertEqual([r['_key'] for r in latest['rows']], ['r0', 'r1'])
@@ -67,7 +67,7 @@ class BuildDocumentsTest(unittest.TestCase):
         self.assertIsNone(latest['rows'][1]['change'])
 
     def test_filter2_columns_renamed_and_typed(self):
-        row = self.documents['screenerSnapshot.topStocks.2026-10-06']['rows'][0]
+        row = self.documents['screenerSnapshot-topStocks-2026-10-06']['rows'][0]
         self.assertEqual(row['week52High'], 111)
         self.assertEqual(row['week52Low'], 70)
         self.assertNotIn('52wh', row)
@@ -78,7 +78,10 @@ class BuildDocumentsTest(unittest.TestCase):
 class UploadTest(unittest.TestCase):
     def test_upload_posts_create_or_replace(self):
         uploader = SanityUploader(project_id='proj', dataset='test', token='tok', api_version='2025-02-19')
-        documents = [{'_id': 'a', '_type': 'screenerSnapshot'}, {'_id': 'b', '_type': 'screenerSnapshot'}]
+        documents = [
+            {'_id': 'screenerSnapshot-allStocks-2026-10-06', 'dataset': 'allStocks', 'date': '2026-10-06'},
+            {'_id': 'screenerSnapshot-topStocks-2026-10-06', 'dataset': 'topStocks', 'date': '2026-10-06'},
+        ]
         with mock.patch.object(upload_to_sanity.requests, 'post') as post:
             post.return_value.ok = True
             post.return_value.json.return_value = {}
@@ -88,12 +91,15 @@ class UploadTest(unittest.TestCase):
         self.assertEqual(url, 'https://proj.api.sanity.io/v2025-02-19/data/mutate/test')
         self.assertEqual(post.call_args.kwargs['headers'], {'Authorization': 'Bearer tok'})
         self.assertEqual(post.call_args.kwargs['json'], {'mutations': [
-            {'createOrReplace': documents[0]}, {'createOrReplace': documents[1]},
+            {'createOrReplace': documents[0]},
+            {'delete': {'id': 'screenerSnapshot.allStocks.2026-10-06'}},
+            {'createOrReplace': documents[1]},
+            {'delete': {'id': 'screenerSnapshot.topStocks.2026-10-06'}},
         ]})
 
     def test_upload_batches_large_payloads(self):
         uploader = SanityUploader(project_id='proj', token='tok')
-        documents = [{'_id': str(i), 'blob': 'x' * 1000} for i in range(5)]
+        documents = [{'_id': str(i), 'dataset': 'allStocks', 'date': str(i), 'blob': 'x' * 1000} for i in range(5)]
         with mock.patch.object(upload_to_sanity, 'MAX_REQUEST_BYTES', 2500), \
                 mock.patch.object(upload_to_sanity.requests, 'post') as post:
             post.return_value.ok = True
