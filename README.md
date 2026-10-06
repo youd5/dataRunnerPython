@@ -190,6 +190,12 @@ The `.env` file will be created automatically when you first run the application
 - `KITE_API_SECRET` - Your Kite Connect API secret
 - `KITE_ACCESS_TOKEN` - Access token (generated after login)
 - `KITE_REDIRECT_URL` - Redirect URL after login (default: `http://localhost:8080/apis/broker/login/zerodha`)
+- `SANITY_PROJECT_ID` - Sanity project id; when set with `SANITY_API_TOKEN`, results are pushed to Sanity after Filter3
+- `SANITY_DATASET` - Sanity dataset (default: `production`)
+- `SANITY_API_TOKEN` - Sanity token with write access
+- `SANITY_API_VERSION` - Sanity API version (default: `2025-02-19`)
+
+Results can also be pushed by hand with `python src/upload_to_sanity.py [YYYY-MM-DD]`; add `--dry-run` to write the documents to `results/<date>_sanity_documents.json` instead of sending them. See `docs/sanity_setup.md` for the document shape.
 
 ## Security Notes
 
