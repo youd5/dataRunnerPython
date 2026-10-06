@@ -14,7 +14,7 @@ from typing import Dict, List, Any, Optional
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.dirname(__file__))
 
-from kite_service import KiteService
+from kite_service import KiteService, RESULTS_DIR
 
 
 class Filter3:
@@ -231,7 +231,7 @@ class Filter3:
         
         # Set default CSV path if not provided
         if csv_path is None:
-            csv_path = "results/filter2_above_200ma_and_50ma_2025-10-09.csv"
+            csv_path = f"{RESULTS_DIR}/filter2_above_200ma_and_50ma_2025-10-09.csv"
         
         # Load instruments from CSV
         instruments = self.load_instruments_from_csv(csv_path)
@@ -335,7 +335,7 @@ class Filter3:
         else:
             if output_path is None:
                 # Auto-generate filename with timestamp
-                output_path = f"results/{datetime.now().strftime('%Y-%m-%d')}_filter3_above_pivot.csv"
+                output_path = f"{RESULTS_DIR}/{datetime.now().strftime('%Y-%m-%d')}_filter3_above_pivot.csv"
             
             # Create results directory if it doesn't exist
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -368,7 +368,7 @@ def main():
     # - lookback: Number of periods to look back/forward for pivot detection (default: 5)
     
     result_df = filter3.run_filter(
-        csv_path=f"results/{datetime.now().strftime('%Y-%m-%d')}_filter2_minervini_filter_list.csv",
+        csv_path=f"{RESULTS_DIR}/{datetime.now().strftime('%Y-%m-%d')}_filter2_minervini_filter_list.csv",
         output_path=None,  # Auto-generates filename
         max_instruments=None,  # Process all instruments (or set to e.g., 10 for testing)
         lookback=5  # Pivot lookback period

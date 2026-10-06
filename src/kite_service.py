@@ -13,6 +13,9 @@ from dotenv import load_dotenv
 # Single .env location at the project root, independent of the working directory
 ENV_FILE = Path(__file__).resolve().parent.parent / '.env'
 
+# Generated CSVs live in results/ at the project root, independent of the working directory
+RESULTS_DIR = str(Path(__file__).resolve().parent.parent / 'results')
+
 # Load environment variables; values in .env take precedence over stale shell exports
 load_dotenv(ENV_FILE, override=True)
 

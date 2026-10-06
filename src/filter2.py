@@ -13,7 +13,7 @@ from typing import Dict, List, Any
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.dirname(__file__))
 
-from kite_service import KiteService
+from kite_service import KiteService, RESULTS_DIR
 
 # TODO: add a column to the final csv to include how much percentage away from the 52 week high is the current price and sort in descending order of this column 
 
@@ -212,7 +212,7 @@ class Filter2:
         
         # Set default CSV path if not provided
         if csv_path is None:
-            csv_path = "results/ohlc-nse-other-instruments_2025-10-09.csv"
+            csv_path = f"{RESULTS_DIR}/ohlc-nse-other-instruments_2025-10-09.csv"
         
         # Load instruments from CSV
         instruments = self.load_instruments_from_csv(csv_path)
@@ -312,7 +312,7 @@ class Filter2:
         else:
             if output_path is None:
                 # Auto-generate filename with timestamp
-                output_path = f"results/{datetime.now().strftime('%Y-%m-%d')}_filter2_minervini_filter_list.csv"
+                output_path = f"{RESULTS_DIR}/{datetime.now().strftime('%Y-%m-%d')}_filter2_minervini_filter_list.csv"
             
             # Create results directory if it doesn't exist
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -338,7 +338,7 @@ def main():
     # - csv_path: Path to input CSV file
     # - output_path: Path to save results
     # - max_instruments: Limit number of instruments to process (useful for testing)
-    results_dir = "results"
+    results_dir = RESULTS_DIR
     end_date = datetime.now().strftime("%Y-%m-%d")
     output_file_path = "ohlc-nse-other-instruments.csv"
     ohlc_csv_filename = f"{results_dir}/{end_date}_{output_file_path}"
