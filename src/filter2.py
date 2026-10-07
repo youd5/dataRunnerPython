@@ -7,13 +7,14 @@ Fetches instruments from CSV, gets 1-year historical data, and filters based on 
 import sys
 import os
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Any
 
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.dirname(__file__))
 
 from kite_service import KiteService, RESULTS_DIR
+from history_cache import HistoryCache, history_date_range
 
 # TODO: add a column to the final csv to include how much percentage away from the 52 week high is the current price and sort in descending order of this column 
 
@@ -81,6 +82,15 @@ class Filter2:
             pd.DataFrame: Historical data as DataFrame
         """
         try:
+            # Filter1 already downloaded this year of candles for the instruments it passed
+            cached = HistoryCache(from_date, to_date).get(instrument_token)
+            if cached is not None:
+                df = cached.copy()
+                df.insert(0, 'instrument_token', instrument_token)
+                df.insert(0, 'trading_symbol', trading_symbol)
+                print(f"📦 Using {len(df)} cached records for {trading_symbol}")
+                return df
+
             print(f"📊 Fetching historical data for {trading_symbol} ({instrument_token})...")
             
             # Fetch historical data from Kite API
@@ -228,8 +238,7 @@ class Filter2:
             print(f"📌 Processing limited to {max_instruments} instruments")
         
         # Calculate date range (1 year from today)
-        end_date = datetime.now().strftime("%Y-%m-%d")
-        start_date = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
+        start_date, end_date = history_date_range()
         
         print(f"\n📅 Date range: {start_date} to {end_date}")
         print(f"📊 Processing {len(instruments)} instruments...\n")

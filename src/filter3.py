@@ -8,13 +8,14 @@ A pivot is a local maxima where the day's high is higher than the previous 5 and
 import sys
 import os
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.dirname(__file__))
 
 from kite_service import KiteService, RESULTS_DIR
+from history_cache import HistoryCache, history_date_range
 
 
 class Filter3:
@@ -79,6 +80,15 @@ class Filter3:
             pd.DataFrame: Historical data as DataFrame
         """
         try:
+            # Filter1 already downloaded this year of candles for the instruments it passed
+            cached = HistoryCache(from_date, to_date).get(instrument_token)
+            if cached is not None:
+                df = cached.copy()
+                df.insert(0, 'instrument_token', instrument_token)
+                df.insert(0, 'trading_symbol', trading_symbol)
+                print(f"📦 Using {len(df)} cached records for {trading_symbol}")
+                return df
+
             print(f"📊 Fetching historical data for {trading_symbol} ({instrument_token})...")
             
             # Fetch historical data from Kite API
@@ -138,22 +148,12 @@ class Filter3:
             print(f"⚠️ Not enough data points ({len(df)}) to find pivots (need at least {2 * lookback + 1})")
             return df
         
-        # Iterate through each potential pivot point
-        # Start from lookback index and end at len-lookback to ensure we have enough data on both sides
-        for i in range(lookback, len(df) - lookback):
-            current_high = df.loc[i, 'high']
-            
-            # Check if current high is greater than previous 'lookback' highs
-            prev_highs = df.loc[i - lookback:i - 1, 'high']
-            is_higher_than_prev = all(current_high > h for h in prev_highs)
-            
-            # Check if current high is greater than next 'lookback' highs
-            next_highs = df.loc[i + 1:i + lookback, 'high']
-            is_higher_than_next = all(current_high > h for h in next_highs)
-            
-            # Mark as pivot if both conditions are met
-            if is_higher_than_prev and is_higher_than_next:
-                df.loc[i, 'is_pivot'] = True
+        # A pivot's high beats the max of the previous and of the next 'lookback' highs.
+        # Windows that run past either end are NaN, so the first and last 'lookback' rows never qualify.
+        high = df['high']
+        prev_max = high.shift(1).rolling(lookback).max()
+        next_max = high.shift(-lookback).rolling(lookback).max()
+        df['is_pivot'] = (high > prev_max) & (high > next_max)
         
         return df
     
@@ -247,8 +247,7 @@ class Filter3:
             print(f"📌 Processing limited to {max_instruments} instruments")
         
         # Calculate date range (1 year from today)
-        end_date = datetime.now().strftime("%Y-%m-%d")
-        start_date = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
+        start_date, end_date = history_date_range()
         
         print(f"\n📅 Date range: {start_date} to {end_date}")
         print(f"📊 Processing {len(instruments)} instruments...")

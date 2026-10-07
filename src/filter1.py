@@ -14,6 +14,7 @@ from typing import Dict, List, Any
 sys.path.insert(0, os.path.dirname(__file__))
 
 from kite_service import KiteService, RESULTS_DIR
+from history_cache import HistoryCache, history_date_range
 
 class Filter1:
     """Filter1 class for fetching instruments and historical data."""
@@ -106,57 +107,18 @@ class Filter1:
                 'instruments': instruments
             }
             
-            # Iterate over instruments and separate INDICES sector
+            # Separate INDICES from the rest in one pass (row-by-row concat was quadratic)
             print(f"🔄 Processing {len(instruments)} instruments...")
             
-            # Create separate dataframes for different sectors
-            indices_df = pd.DataFrame()
-            other_instruments_df = pd.DataFrame()
+            # Names that are missing or not text count as empty, as before
+            names = instruments_df['name'].apply(lambda name: name if isinstance(name, str) else '')
+            is_index = instruments_df['segment'] == 'INDICES'
+            # Only add to other instruments if lot_size == 1 and name is not empty
+            is_other = ~is_index & (instruments_df['lot_size'] == 1) & (names.str.strip() != '')
             
-            for i, instrument in enumerate(instruments):
-                try:
-                    # Get sector information
-                    sector = instrument.get('segment', 'Unknown')
-                    instrument_type = instrument.get('instrument_type', 'Unknown')
-                    
-                    # Convert instrument to DataFrame row
-                    instrument_row = pd.DataFrame([instrument])
-                    
-                    # Check if it's an INDICES sector
-                    if sector == 'INDICES':
-                        if indices_df.empty:
-                            indices_df = instrument_row
-                        else:
-                            indices_df = pd.concat([indices_df, instrument_row], ignore_index=True)
-                        print(f"📊 Found INDICES instrument: {instrument.get('tradingsymbol', 'Unknown')}")
-                    else:
-                        # Check for lot size - only add to other instruments if lot_size == 1
-                        lot_size = instrument.get('lot_size', 0)
-                        # Check for "name" - do not add to other instruments if name is empty
-                        name = instrument.get('name', '')
-                        
-                        if lot_size == 1 and name.strip() != '':
-                            if other_instruments_df.empty:
-                                other_instruments_df = instrument_row
-                            else:
-                                other_instruments_df = pd.concat([other_instruments_df, instrument_row], ignore_index=True)
-                            print(f"📊 Added instrument with lot_size=1 and valid name: {instrument.get('tradingsymbol', 'Unknown')}")
-                        else:
-                            # Determine reason for skipping
-                            if lot_size != 1:
-                                print(f"⏭️ Skipped instrument with lot_size={lot_size}: {instrument.get('tradingsymbol', 'Unknown')}")
-                            elif name.strip() == '':
-                                print(f"⏭️ Skipped instrument with empty name: {instrument.get('tradingsymbol', 'Unknown')}")
-                            else:
-                                print(f"⏭️ Skipped instrument: {instrument.get('tradingsymbol', 'Unknown')}")
-                    
-                    # Progress indicator
-                    if (i + 1) % 500 == 0:
-                        print(f"   Processed {i + 1}/{len(instruments)} instruments...")
-                        
-                except Exception as e:
-                    print(f"   ⚠️ Error processing instrument {i}: {e}")
-                    continue
+            indices_df = instruments_df[is_index].reset_index(drop=True)
+            other_instruments_df = instruments_df[is_other].reset_index(drop=True)
+            print(f"⏭️ Skipped {len(instruments_df) - len(indices_df) - len(other_instruments_df)} instruments with lot_size != 1 or an empty name")
             
             # Save separated dataframes
             if not indices_df.empty:
@@ -197,13 +159,15 @@ class Filter1:
     
 
 
-    def fetch_instruments_and_historical_data(self, instruments_file_path: str = f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv") -> Dict[str, Any]:
+    def fetch_instruments_and_historical_data(self, instruments_file_path: str = f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv", cache_history: bool = False) -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
         
         Args:
             instruments_file_path (str): Path to the instruments file (default: "results/instruments/nse-indices.csv" under the project root)
             max_instruments (int): Maximum number of instruments to process (default: 5)
+            cache_history (bool): Fetch a year of candles in the same call and keep them for the
+                instruments that pass, so Filter2 and Filter3 do not download them again
             
         Returns:
             Dict[str, Any]: Results with instruments and historical data
@@ -241,8 +205,12 @@ class Filter1:
             # Step 2: Process up to max_instruments
             
             # Calculate date range (today - 8 days to today)
-            end_date = datetime.now().strftime("%Y-%m-%d")
-            start_date = (datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d")
+            now = datetime.now()
+            end_date = now.strftime("%Y-%m-%d")
+            start_date = (now - timedelta(days=10)).strftime("%Y-%m-%d")
+            # One request either way: ask for the year Filter2/Filter3 need and screen the last 10 days of it
+            fetch_from_date, fetch_to_date = history_date_range(now) if cache_history else (start_date, end_date)
+            history_by_token = {}
             resultFrame = pd.DataFrame(columns=['Symbol', 'name', 'token', "weekAvgVol"])
             count = 0
             max_instruments = 5
@@ -269,15 +237,17 @@ class Filter1:
                         
                         historical_result = self.kite_service.historical_data(
                             instrument_token=instrument_token,
-                            from_date=start_date,
-                            to_date=end_date,
+                            from_date=fetch_from_date,
+                            to_date=fetch_to_date,
                             interval="day"
                         )
                         
                         if historical_result['success']:
                             print(f"   ✅ Historical data fetched: {historical_result['count']} data points")
 
-                            historyData = pd.DataFrame(historical_result['data'])
+                            candles = historical_result['data'] or []
+                            recent_candles = [c for c in candles if str(c['date'])[:10] >= start_date]
+                            historyData = pd.DataFrame(recent_candles)
                             # print(f"historyData {trading_symbol}, {instrument_token} \n", historyData)
 
                             # Create dataframe with trading_symbol, instrument_token, and all historyData columns
@@ -312,6 +282,8 @@ class Filter1:
 
                                 # Append to the list of all instrument histories
                                 all_instrument_histories.append(instrument_history_df)
+                                if cache_history:
+                                    history_by_token[instrument_token] = pd.DataFrame(candles)
                                 
                                 print(f"📊 Added {trading_symbol} data to collection. Shape: {instrument_history_df.shape}")
                                 # print(instrument_history_df)
@@ -351,6 +323,9 @@ class Filter1:
                 print(f"📊 Total records: {len(combined_ohlc_df)}")
             else:
                 print("⚠️ No instrument history data collected")
+
+            if cache_history:
+                HistoryCache(fetch_from_date, fetch_to_date).put_all(history_by_token)
             
             return {
                 'success': True,
@@ -474,7 +449,7 @@ class Filter1:
         
         # Fetch instruments and historical data
         fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path="ohlc-nse-indices.csv")
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv", cache_history=True)
         
         if not fetch_result['success']:
             return fetch_result
