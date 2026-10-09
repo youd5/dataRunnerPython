@@ -41,19 +41,32 @@ class PricePrefilterTest(unittest.TestCase):
             [instrument(s) for s in ['CHEAP', 'EDGE', 'DEAR', 'ZERO', 'NOQUOTE']])
         self.assertEqual([i['tradingsymbol'] for i in kept], ['EDGE', 'DEAR', 'ZERO', 'NOQUOTE'])
 
-    def test_batches_of_1000_and_keeps_a_failed_batch(self):
-        instruments = [instrument(f'S{i}') for i in range(2500)]
+    def test_batches_and_keeps_a_failed_batch(self):
+        instruments = [instrument(f'S{i}') for i in range(1200)]
         self.filter1.kite_service.get_ohlc.side_effect = [
-            {'success': True, 'ohlc': {f'NSE:S{i}': {'last_price': 5} for i in range(1000)}},
+            {'success': True, 'ohlc': {f'NSE:S{i}': {'last_price': 5} for i in range(500)}},
             {'success': False, 'error': 'Too many requests'},
             {'success': True, 'ohlc': {}},
         ]
         kept = self.filter1.prefilter_by_last_price(instruments)
         batch_sizes = [len(call.args[0]) for call in self.filter1.kite_service.get_ohlc.call_args_list]
-        self.assertEqual(batch_sizes, [1000, 1000, 500])
-        self.assertEqual(len(kept), 1500)
+        self.assertEqual(batch_sizes, [500, 500, 200])
+        self.assertEqual(len(kept), 700)
         self.assertEqual(self.sleep.call_count, 2)
 
+    def test_splits_a_batch_rejected_as_too_long(self):
+        too_long = {'success': False, 'error': 'Unknown Content-Type (text/html) with response: 414 Request-URI Too Large'}
+
+        def get_ohlc(keys):
+            if len(keys) > 200:
+                return too_long
+            return {'success': True, 'ohlc': {key: {'last_price': 5} for key in keys}}
+
+        self.filter1.kite_service.get_ohlc.side_effect = get_ohlc
+        kept = self.filter1.prefilter_by_last_price([instrument(f'S{i}') for i in range(500)])
+        batch_sizes = [len(call.args[0]) for call in self.filter1.kite_service.get_ohlc.call_args_list]
+        self.assertEqual(batch_sizes, [500, 250, 125, 125, 250, 125, 125])
+        self.assertEqual(kept, [])
 
 if __name__ == '__main__':
     unittest.main()
