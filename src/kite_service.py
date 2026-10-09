@@ -5,9 +5,13 @@ Zerodha Kite API integration service.
 
 import os
 import json
+import threading
+import time
 from pathlib import Path
 from typing import Dict, List, Optional, Any
+import requests
 from kiteconnect import KiteConnect
+from kiteconnect.exceptions import NetworkException
 from dotenv import load_dotenv
 
 # Single .env location at the project root, independent of the working directory
@@ -19,6 +23,13 @@ RESULTS_DIR = str(Path(__file__).resolve().parent.parent / 'results')
 # Load environment variables; values in .env take precedence over stale shell exports
 load_dotenv(ENV_FILE, override=True)
 
+# Kite allows 3 historical-candle requests per second; going faster gets requests rejected
+HISTORICAL_REQUESTS_PER_SECOND = float(os.getenv('KITE_HISTORICAL_RPS', '3'))
+# Rejected (rate-limited or dropped) requests are retried this many times with backoff
+HISTORICAL_MAX_RETRIES = 3
+# Kite reports "Too many requests" as a NetworkException
+RETRYABLE_ERRORS = (NetworkException, requests.exceptions.ConnectionError, requests.exceptions.Timeout)
+
 class KiteService:
     """Service class for Zerodha Kite API integration."""
     
@@ -26,6 +37,10 @@ class KiteService:
     _instruments_list = None
     _symbol_to_instrument_map = None
     _token_to_instrument_map = None
+    
+    # Shared by every KiteService instance so Filter1, 2 and 3 stay under one rate limit
+    _historical_lock = threading.Lock()
+    _historical_last_call = 0.0
     
     def __init__(self):
         """Initialize Kite service with API credentials."""
@@ -385,6 +400,18 @@ class KiteService:
                 'error': str(e)
             }
     
+    @classmethod
+    def _wait_for_historical_slot(cls):
+        """Space historical requests to stay within Kite's per-second limit."""
+        if HISTORICAL_REQUESTS_PER_SECOND <= 0:
+            return
+        interval = 1.0 / HISTORICAL_REQUESTS_PER_SECOND
+        with cls._historical_lock:
+            wait = cls._historical_last_call + interval - time.monotonic()
+            if wait > 0:
+                time.sleep(wait)
+            cls._historical_last_call = time.monotonic()
+    
     def historical_data(self, instrument_token: int, from_date: str, to_date: str, 
                        interval: str, continuous: bool = False, oi: bool = False) -> Dict[str, Any]:
         """
@@ -435,14 +462,24 @@ class KiteService:
                 }
             
             # Fetch historical data from Kite API
-            historical_data = self.kite.historical_data(
-                instrument_token=instrument_token,
-                from_date=from_date,
-                to_date=to_date,
-                interval=interval,
-                continuous=continuous,
-                oi=oi
-            )
+            for attempt in range(HISTORICAL_MAX_RETRIES + 1):
+                self._wait_for_historical_slot()
+                try:
+                    historical_data = self.kite.historical_data(
+                        instrument_token=instrument_token,
+                        from_date=from_date,
+                        to_date=to_date,
+                        interval=interval,
+                        continuous=continuous,
+                        oi=oi
+                    )
+                    break
+                except RETRYABLE_ERRORS as e:
+                    if attempt == HISTORICAL_MAX_RETRIES:
+                        raise
+                    backoff = 2 ** attempt
+                    print(f"⏳ Historical data request failed ({e}); retrying in {backoff}s...")
+                    time.sleep(backoff)
             
             return {
                 'success': True,
