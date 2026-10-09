@@ -36,7 +36,14 @@ SOURCE_URLS = [
     'https://archives.nseindia.com/content/indices/{file}',
     'https://www.niftyindices.com/IndexConstituent/{file}',
 ]
-HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
+HEADERS = {
+    'User-Agent': ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                   '(KHTML, like Gecko) Chrome/124.0 Safari/537.36'),
+    'Accept': 'text/csv,text/plain,*/*',
+    'Accept-Language': 'en-US,en;q=0.9',
+}
+# (connect, read) seconds; NSE tends to stall rather than refuse non-browser clients
+TIMEOUT = (5, 15)
 
 
 def download_list(file_name):
@@ -44,14 +51,19 @@ def download_list(file_name):
     errors = []
     for url in SOURCE_URLS:
         url = url.format(file=file_name)
+        print(f'⬇️  {url}', flush=True)
         try:
-            response = requests.get(url, headers=HEADERS, timeout=30)
+            response = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
             if response.ok and 'Symbol' in response.text[:500]:
                 return response.text
-            errors.append(f'{url}: HTTP {response.status_code}')
+            error = f'HTTP {response.status_code}'
         except requests.RequestException as e:
-            errors.append(f'{url}: {e}')
-    raise RuntimeError(f'Could not download {file_name}: ' + '; '.join(errors))
+            error = type(e).__name__
+        print(f'   ⚠️ failed: {error}', flush=True)
+        errors.append(f'{url}: {error}')
+    raise RuntimeError(
+        f'Could not download {file_name} ({"; ".join(errors)}). Download it in a browser from '
+        f'https://www.niftyindices.com and re-run with --from-dir <folder>.')
 
 
 def load_symbols(file_name, from_dir=None):
@@ -72,6 +84,7 @@ def update_membership(instruments_csv=INSTRUMENTS_CSV, from_dir=None):
     symbols = instruments['tradingsymbol'].astype(str)
     summary = {}
     for column, file_name in INDEX_LISTS.items():
+        print(f'📋 {column}', flush=True)
         members = load_symbols(file_name, from_dir)
         instruments[column] = symbols.isin(members)
         summary[column] = (len(members), sorted(members - set(symbols)))
@@ -82,7 +95,10 @@ def update_membership(instruments_csv=INSTRUMENTS_CSV, from_dir=None):
 def main():
     args = sys.argv[1:]
     from_dir = args[args.index('--from-dir') + 1] if '--from-dir' in args else None
-    summary = update_membership(from_dir=from_dir)
+    try:
+        summary = update_membership(from_dir=from_dir)
+    except RuntimeError as e:
+        sys.exit(f'❌ {e}')
     for column, (count, unmatched) in summary.items():
         line = f'{column}: {count - len(unmatched)}/{count} constituents flagged'
         if unmatched:
