@@ -5,6 +5,7 @@ Filter1: Fetches instruments and historical data for analysis.
 
 import sys
 import os
+import time
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
@@ -15,6 +16,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from kite_service import KiteService, RESULTS_DIR
 from history_cache import HistoryCache, history_date_range
+
+# Instruments priced below this are dropped (10-day average close, and last price in the prefilter)
+MIN_PRICE = 30
+# Kite's quote endpoints take up to 1000 instruments per call and allow 1 call per second
+OHLC_BATCH_SIZE = 1000
+OHLC_CALL_INTERVAL_SECONDS = 1.0
 
 class Filter1:
     """Filter1 class for fetching instruments and historical data."""
@@ -159,7 +166,37 @@ class Filter1:
     
 
 
-    def fetch_instruments_and_historical_data(self, instruments_file_path: str = f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv", cache_history: bool = False) -> Dict[str, Any]:
+    def prefilter_by_last_price(self, instruments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Drop instruments whose last price is below MIN_PRICE, using batched OHLC quotes
+        (one call per 1000 instruments) instead of a history call each.
+        
+        Instruments without a usable quote (missing, zero price, or a failed batch) are kept,
+        so the 10-day average close check still decides for them.
+        """
+        kept = []
+        dropped = 0
+        for batch_start in range(0, len(instruments), OHLC_BATCH_SIZE):
+            batch = instruments[batch_start:batch_start + OHLC_BATCH_SIZE]
+            if batch_start > 0:
+                time.sleep(OHLC_CALL_INTERVAL_SECONDS)
+            keys = [f"{instrument.get('exchange') or 'NSE'}:{instrument.get('tradingsymbol')}" for instrument in batch]
+            ohlc_result = self.kite_service.get_ohlc(keys)
+            if not ohlc_result['success']:
+                print(f"⚠️ OHLC prefilter failed for {len(batch)} instruments, keeping them: {ohlc_result['error']}")
+                kept.extend(batch)
+                continue
+            quotes = ohlc_result['ohlc'] or {}
+            for key, instrument in zip(keys, batch):
+                last_price = (quotes.get(key) or {}).get('last_price') or 0
+                if 0 < last_price < MIN_PRICE:
+                    dropped += 1
+                else:
+                    kept.append(instrument)
+        print(f"💸 Price prefilter: dropped {dropped} instruments below {MIN_PRICE}, {len(kept)} left")
+        return kept
+
+    def fetch_instruments_and_historical_data(self, instruments_file_path: str = f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv", cache_history: bool = False, prefilter_price: bool = False) -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
         
@@ -168,6 +205,8 @@ class Filter1:
             max_instruments (int): Maximum number of instruments to process (default: 5)
             cache_history (bool): Fetch a year of candles in the same call and keep them for the
                 instruments that pass, so Filter2 and Filter3 do not download them again
+            prefilter_price (bool): Skip instruments whose last price is below MIN_PRICE before
+                fetching any history
             
         Returns:
             Dict[str, Any]: Results with instruments and historical data
@@ -201,6 +240,8 @@ class Filter1:
                 }
             
             instruments = instruments_result['instruments']
+            if prefilter_price:
+                instruments = self.prefilter_by_last_price(instruments)
             
             # Step 2: Process up to max_instruments
             
@@ -260,7 +301,7 @@ class Filter1:
                                 if weekAvgVol < 100000 and weekAvgVol > 0:
                                     print("skipping low volume or zero volume -- " + trading_symbol)
                                     continue
-                                if weekAvgClose < 30:
+                                if weekAvgClose < MIN_PRICE:
                                     print("skipping low price -- " + trading_symbol)
                                     continue
                                 instrument_history_df = historyData.copy()
@@ -449,7 +490,7 @@ class Filter1:
         
         # Fetch instruments and historical data
         fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path="ohlc-nse-indices.csv")
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv", cache_history=True)
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv", cache_history=True, prefilter_price=True)
         
         if not fetch_result['success']:
             return fetch_result
