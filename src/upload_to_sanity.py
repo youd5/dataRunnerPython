@@ -7,6 +7,10 @@ Each dataset is stored as one `screenerSnapshot` document per date, holding the 
   - indices:   Filter1 OHLC for indices, one document per candle date
   - topStocks: Filter2 (Minervini trend template), one document per run date
   - breakouts: Filter3 (above last pivot), one document per run date
+  - allStocksList: every equity in src/static/instruments/nse-other-instruments.csv with its
+    true/false index membership flags (nifty_50, nifty_bank, nifty_smallcap_50, nifty_midcap_50).
+    One document (`screenerSnapshot-allStocksList`), replaced on each upload; the website's
+    heat map uses it to pick the stocks of each index.
 
 Document ids are deterministic (`screenerSnapshot-<dataset>-<date>`) and written with
 createOrReplace, so re-running a day overwrites that day instead of duplicating it. Ids must
@@ -39,6 +43,21 @@ DATASETS = {
     'indices': ('ohlc-nse-indices.csv', True),
     'topStocks': ('filter2_minervini_filter_list.csv', False),
     'breakouts': ('filter3_above_pivot.csv', False),
+}
+
+# Instrument list with index membership flags (kept up to date by update_index_membership.py)
+INSTRUMENTS_CSV = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'static', 'instruments', 'nse-other-instruments.csv'
+)
+STOCK_LIST_DATASET = 'allStocksList'
+STOCK_LIST_COLUMNS = {
+    'tradingsymbol': 'trading_symbol',  # same name as the Filter1 rows, so the site can join them
+    'name': 'name',
+    'instrument_token': 'instrument_token',
+    'nifty_50': 'nifty_50',
+    'nifty_bank': 'nifty_bank',
+    'nifty_smallcap_50': 'nifty_smallcap_50',
+    'nifty_midcap_50': 'nifty_midcap_50',
 }
 
 # Sanity field names cannot start with a digit
@@ -110,7 +129,42 @@ def build_documents(run_date, results_dir=RESULTS_DIR):
                 'rows': date_rows,
             })
 
+    stock_list = build_stock_list_document(run_date, generated_at)
+    if stock_list:
+        documents.append(stock_list)
+
     return documents
+
+
+def build_stock_list_document(run_date, generated_at, csv_path=INSTRUMENTS_CSV):
+    """Build the allStocksList document: every equity with its index membership flags."""
+    if not os.path.exists(csv_path):
+        print(f'⚠️ Skipping {STOCK_LIST_DATASET}: {csv_path} not found')
+        return None
+
+    df = pd.read_csv(csv_path)
+    columns = [column for column in STOCK_LIST_COLUMNS if column in df.columns]
+    df = df[columns].rename(columns=STOCK_LIST_COLUMNS)
+    for flag in ('nifty_50', 'nifty_bank', 'nifty_smallcap_50', 'nifty_midcap_50'):
+        if flag in df.columns:
+            df[flag] = df[flag].astype(str).str.strip().str.lower().isin(['true', '1'])
+
+    rows = []
+    for index, record in enumerate(df.to_dict(orient='records')):
+        row = {'_key': f'r{index}'}
+        row.update({key: _clean_value(value) for key, value in record.items()})
+        rows.append(row)
+
+    return {
+        '_id': f'{DOCUMENT_TYPE}-{STOCK_LIST_DATASET}',
+        '_type': DOCUMENT_TYPE,
+        'dataset': STOCK_LIST_DATASET,
+        'date': run_date,
+        'runDate': run_date,
+        'generatedAt': generated_at,
+        'rowCount': len(rows),
+        'rows': rows,
+    }
 
 
 class SanityUploader:
