@@ -156,11 +156,12 @@ class ProcessCsvTest(unittest.TestCase):
                 {'instrument_token': 5, 'tradingsymbol': 'BLANK', 'name': '  ', 'lot_size': 1, 'segment': 'NSE'},
             ]).to_csv(os.path.join(tmp, 'instruments', 'nse-instruments.csv'), index=False)
 
-            with mock.patch('filter1.RESULTS_DIR', tmp):
+            with mock.patch('filter1.RESULTS_DIR', tmp), \
+                    mock.patch('filter1.INSTRUMENTS_DIR', os.path.join(tmp, 'static')):
                 Filter1.__new__(Filter1).process_csv()
 
-            indices = pd.read_csv(os.path.join(tmp, 'instruments', 'nse-indices.csv'))
-            others = pd.read_csv(os.path.join(tmp, 'instruments', 'nse-other-instruments.csv'))
+            indices = pd.read_csv(os.path.join(tmp, 'static', 'nse-indices.csv'))
+            others = pd.read_csv(os.path.join(tmp, 'static', 'nse-other-instruments.csv'))
             self.assertEqual(indices['tradingsymbol'].tolist(), ['NIFTY 50'])
             self.assertEqual(others['tradingsymbol'].tolist(), ['ABC'])
 

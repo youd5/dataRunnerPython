@@ -17,6 +17,11 @@ sys.path.insert(0, os.path.dirname(__file__))
 from kite_service import KiteService, RESULTS_DIR
 from history_cache import HistoryCache, history_date_range
 
+# The instrument lists the filters run on are kept in git so changes to them show up as diffs
+INSTRUMENTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'instruments')
+# Where the lists used to live (results/ is git-ignored); moved over on first use
+LEGACY_INSTRUMENTS_DIR = f"{RESULTS_DIR}/instruments"
+
 # Instruments priced below this are dropped (10-day average close, and last price in the prefilter)
 MIN_PRICE = 30
 # Kite's quote endpoints allow 1 call per second and take up to 1000 instruments, but the symbols
@@ -130,13 +135,15 @@ class Filter1:
             
             # Save separated dataframes
             if not indices_df.empty:
-                indices_csv_path = f"{RESULTS_DIR}/instruments/nse-indices.csv"
+                os.makedirs(INSTRUMENTS_DIR, exist_ok=True)
+                indices_csv_path = f"{INSTRUMENTS_DIR}/nse-indices.csv"
                 indices_df.to_csv(indices_csv_path, index=False)
                 print(f"💾 INDICES instruments saved to: {indices_csv_path}")
                 print(f"📊 Total INDICES instruments: {len(indices_df)}")
             
             if not other_instruments_df.empty:
-                other_csv_path = f"{RESULTS_DIR}/instruments/nse-other-instruments.csv"
+                os.makedirs(INSTRUMENTS_DIR, exist_ok=True)
+                other_csv_path = f"{INSTRUMENTS_DIR}/nse-other-instruments.csv"
                 other_instruments_df.to_csv(other_csv_path, index=False)
                 print(f"💾 Other instruments saved to: {other_csv_path}")
                 print(f"📊 Total other instruments: {len(other_instruments_df)}")
@@ -206,12 +213,12 @@ class Filter1:
         print(f"💸 Price prefilter: dropped {dropped} instruments below {MIN_PRICE}, {len(kept)} left")
         return kept
 
-    def fetch_instruments_and_historical_data(self, instruments_file_path: str = f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv", cache_history: bool = False, prefilter_price: bool = False) -> Dict[str, Any]:
+    def fetch_instruments_and_historical_data(self, instruments_file_path: str = f"{INSTRUMENTS_DIR}/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv", cache_history: bool = False, prefilter_price: bool = False) -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
         
         Args:
-            instruments_file_path (str): Path to the instruments file (default: "results/instruments/nse-indices.csv" under the project root)
+            instruments_file_path (str): Path to the instruments file (default: "src/static/instruments/nse-indices.csv")
             max_instruments (int): Maximum number of instruments to process (default: 5)
             cache_history (bool): Fetch a year of candles in the same call and keep them for the
                 instruments that pass, so Filter2 and Filter3 do not download them again
@@ -232,13 +239,19 @@ class Filter1:
         try:
             # Get instruments data (from CSV cache or API)
             #instruments_result = self.get_instruments_data()
+            legacy_path = os.path.join(LEGACY_INSTRUMENTS_DIR, os.path.basename(instruments_file_path))
+            if not os.path.exists(instruments_file_path) and os.path.exists(legacy_path):
+                # Lists from before they were tracked in git: move them instead of rebuilding
+                os.makedirs(os.path.dirname(instruments_file_path), exist_ok=True)
+                os.replace(legacy_path, instruments_file_path)
+                print(f"📁 Moved {legacy_path} to {instruments_file_path}")
             if not os.path.exists(instruments_file_path):
                 # Instrument lists are generated, not committed: download from Kite and split them
                 print(f"📁 {instruments_file_path} not found, building instrument lists...")
                 self.get_instruments_data()
                 self.process_csv()
             instruments_result = self.fetch_instruments_list_from_file(instruments_file_path)
-            #instruments_result = self.fetch_instruments_list_from_file(f"{RESULTS_DIR}/instruments/nse-other-instruments.csv")
+            #instruments_result = self.fetch_instruments_list_from_file(f"{INSTRUMENTS_DIR}/nse-other-instruments.csv")
             
             
             #self.process_csv()
@@ -499,8 +512,8 @@ class Filter1:
         print("=" * 50)
         
         # Fetch instruments and historical data
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-indices.csv", output_file_path="ohlc-nse-indices.csv")
-        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{RESULTS_DIR}/instruments/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv", cache_history=True, prefilter_price=True)
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{INSTRUMENTS_DIR}/nse-indices.csv", output_file_path="ohlc-nse-indices.csv")
+        fetch_result = self.fetch_instruments_and_historical_data(instruments_file_path=f"{INSTRUMENTS_DIR}/nse-other-instruments.csv", output_file_path="ohlc-nse-other-instruments.csv", cache_history=True, prefilter_price=True)
         
         if not fetch_result['success']:
             return fetch_result
