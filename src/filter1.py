@@ -213,6 +213,17 @@ class Filter1:
         print(f"💸 Price prefilter: dropped {dropped} instruments below {MIN_PRICE}, {len(kept)} left")
         return kept
 
+    @staticmethod
+    def passed_tokens(output_csv: str):
+        """Instrument tokens in an earlier Filter1 output, or None if there is no usable one."""
+        if not os.path.exists(output_csv):
+            return None
+        try:
+            return set(pd.read_csv(output_csv, usecols=['instrument_token'])['instrument_token'].astype(int))
+        except Exception as e:
+            print(f"⚠️ Ignoring unreadable {output_csv}, screening the full list: {e}")
+            return None
+
     def fetch_instruments_and_historical_data(self, instruments_file_path: str = f"{INSTRUMENTS_DIR}/nse-indices.csv", output_file_path: str = "ohlc-nse-indices.csv", cache_history: bool = False, prefilter_price: bool = False) -> Dict[str, Any]:
         """
         Fetch all instruments from NSE and get historical data for up to max_instruments.
@@ -263,14 +274,22 @@ class Filter1:
                 }
             
             instruments = instruments_result['instruments']
-            if prefilter_price:
+            now = datetime.now()
+            end_date = now.strftime("%Y-%m-%d")
+
+            # Later runs of the day only refresh the instruments today's first run let through
+            todays_output = f"{RESULTS_DIR}/{end_date}_{output_file_path}"
+            passed_tokens = self.passed_tokens(todays_output)
+            if passed_tokens is not None:
+                instruments = [i for i in instruments if i.get('instrument_token') in passed_tokens]
+                print(f"♻️ {todays_output} exists: refreshing only its {len(instruments)} instruments "
+                      f"(delete it to screen the full list again)")
+            elif prefilter_price:
                 instruments = self.prefilter_by_last_price(instruments)
             
             # Step 2: Process up to max_instruments
             
             # Calculate date range (today - 8 days to today)
-            now = datetime.now()
-            end_date = now.strftime("%Y-%m-%d")
             start_date = (now - timedelta(days=10)).strftime("%Y-%m-%d")
             # One request either way: ask for the year Filter2/Filter3 need and screen the last 10 days of it
             fetch_from_date, fetch_to_date = history_date_range(now) if cache_history else (start_date, end_date)

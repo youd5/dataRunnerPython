@@ -143,6 +143,36 @@ class SharedHistoryTest(unittest.TestCase):
         HistoryCache._memory.clear()
         self.assertEqual(len(HistoryCache(from_date, to_date).get(101)), len(candles))
 
+    def test_later_runs_refresh_only_todays_survivors(self):
+        instruments_path = os.path.join(self.tmp.name, 'instruments.csv')
+        pd.DataFrame([
+            {'instrument_token': 101, 'tradingsymbol': 'ABC', 'name': 'Abc Ltd'},
+            {'instrument_token': 102, 'tradingsymbol': 'LOW', 'name': 'Low Volume Ltd'},
+        ]).to_csv(instruments_path, index=False)
+        quiet = [dict(c, volume=1000) for c in make_candles(365, seed=2)]
+
+        def run():
+            filter1 = Filter1.__new__(Filter1)
+            filter1.kite_service = mock.Mock()
+            filter1.kite_service.historical_data.side_effect = lambda instrument_token, **_: {
+                'success': True, 'data': make_candles(365) if instrument_token == 101 else quiet, 'count': 1}
+            filter1.prefilter_by_last_price = mock.Mock(side_effect=lambda instruments: instruments)
+            with mock.patch('filter1.RESULTS_DIR', self.tmp.name):
+                filter1.fetch_instruments_and_historical_data(
+                    instruments_path, 'ohlc.csv', cache_history=True, prefilter_price=True)
+            return filter1
+
+        first = run()
+        self.assertEqual(first.kite_service.historical_data.call_count, 2)
+        first.prefilter_by_last_price.assert_called_once()
+
+        second = run()
+        tokens = [c.kwargs['instrument_token'] for c in second.kite_service.historical_data.call_args_list]
+        self.assertEqual(tokens, [101])
+        second.prefilter_by_last_price.assert_not_called()
+        ohlc = pd.read_csv(os.path.join(self.tmp.name, f'{history_date_range()[1]}_ohlc.csv'))
+        self.assertEqual(set(ohlc['trading_symbol']), {'ABC'})
+
 
 class ProcessCsvTest(unittest.TestCase):
     def test_splits_indices_and_tradable_equities(self):
