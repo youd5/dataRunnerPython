@@ -19,8 +19,9 @@ from history_cache import HistoryCache, history_date_range
 
 # Instruments priced below this are dropped (10-day average close, and last price in the prefilter)
 MIN_PRICE = 30
-# Kite's quote endpoints take up to 1000 instruments per call and allow 1 call per second
-OHLC_BATCH_SIZE = 1000
+# Kite's quote endpoints allow 1 call per second and take up to 1000 instruments, but the symbols
+# go in the URL and 1000 NSE symbols exceed its length limit (HTTP 414); 500 stays well under it
+OHLC_BATCH_SIZE = 500
 OHLC_CALL_INTERVAL_SECONDS = 1.0
 
 class Filter1:
@@ -169,20 +170,29 @@ class Filter1:
     def prefilter_by_last_price(self, instruments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Drop instruments whose last price is below MIN_PRICE, using batched OHLC quotes
-        (one call per 1000 instruments) instead of a history call each.
+        (one call per OHLC_BATCH_SIZE instruments) instead of a history call each.
         
         Instruments without a usable quote (missing, zero price, or a failed batch) are kept,
         so the 10-day average close check still decides for them.
         """
         kept = []
         dropped = 0
-        for batch_start in range(0, len(instruments), OHLC_BATCH_SIZE):
-            batch = instruments[batch_start:batch_start + OHLC_BATCH_SIZE]
-            if batch_start > 0:
+        # Kite sends the symbols in the URL; a batch rejected as too long is split in half and retried
+        pending = [instruments[i:i + OHLC_BATCH_SIZE] for i in range(0, len(instruments), OHLC_BATCH_SIZE)]
+        first_call = True
+        while pending:
+            batch = pending.pop(0)
+            if not first_call:
                 time.sleep(OHLC_CALL_INTERVAL_SECONDS)
+            first_call = False
             keys = [f"{instrument.get('exchange') or 'NSE'}:{instrument.get('tradingsymbol')}" for instrument in batch]
             ohlc_result = self.kite_service.get_ohlc(keys)
             if not ohlc_result['success']:
+                if '414' in str(ohlc_result['error']) and len(batch) > 1:
+                    half = len(batch) // 2
+                    print(f"✂️ OHLC request for {len(batch)} instruments was too long; splitting it in two")
+                    pending[:0] = [batch[:half], batch[half:]]
+                    continue
                 print(f"⚠️ OHLC prefilter failed for {len(batch)} instruments, keeping them: {ohlc_result['error']}")
                 kept.extend(batch)
                 continue
