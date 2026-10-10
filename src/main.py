@@ -8,6 +8,7 @@ from kite_service import KiteService, ENV_FILE, RESULTS_DIR
 from filter1 import Filter1
 from filter2 import Filter2
 from filter3 import Filter3
+from filter4 import Filter4
 from upload_to_sanity import push_results_to_sanity
 import os
 import urllib.parse
@@ -135,6 +136,15 @@ def algorithm_triggered():
             max_instruments=None,  # Process all instruments (or set to e.g., 10 for testing)
             lookback=5  # Pivot lookback period
         )
+
+        # Step 4: Market Profile acceptance of the breakouts (never fails the run)
+        if not filter3_result_df.empty:
+            print("📊 Running Filter4...")
+            try:
+                Filter4().run_filter(
+                    csv_path=f"{RESULTS_DIR}/{datetime.now().strftime('%Y-%m-%d')}_filter3_above_pivot.csv")
+            except Exception as e:
+                print(f"❌ Filter4 failed: {e}")
 
         # Publish today's results to Sanity for the website (skipped if not configured)
         print("📤 Pushing results to Sanity...")

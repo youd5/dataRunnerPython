@@ -7,6 +7,7 @@ Each dataset is stored as one `screenerSnapshot` document per date, holding the 
   - indices:   Filter1 OHLC for indices, one document per candle date
   - topStocks: Filter2 (Minervini trend template), one document per run date
   - breakouts: Filter3 (above last pivot), one document per run date
+  - breakoutAcceptance: Filter4 (Market Profile verdict on each breakout), one document per run date
   - allStocksList: every equity in src/static/instruments/nse-other-instruments.csv with its
     true/false index membership flags (nifty_50, nifty_bank, nifty_smallcap_50, nifty_midcap_50).
     One document (`screenerSnapshot-allStocksList`), replaced on each upload; the website's
@@ -16,7 +17,7 @@ Document ids are deterministic (`screenerSnapshot-<dataset>-<date>`) and written
 createOrReplace, so re-running a day overwrites that day instead of duplicating it. Ids must
 not contain dots: Sanity treats dotted ids as private, even in a public dataset.
 
-topStocks and breakouts are dated by the market day in their rows, not the day the script ran,
+topStocks, breakouts and breakoutAcceptance are dated by the market day in their rows, not the day the script ran,
 so a run on a weekend, a holiday or after midnight overwrites the market day it screened. Any
 other document of the same dataset holding that market day is deleted, which also cleans up
 duplicates left by earlier runs: re-running the upload is enough to fix them.
@@ -46,6 +47,7 @@ DOCUMENT_TYPE = 'screenerSnapshot'
 MARKET_DATE_COLUMNS = {
     'topStocks': 'date',
     'breakouts': 'currentDate',
+    'breakoutAcceptance': 'sessionDate',
 }
 
 # dataset -> (CSV file suffix, whether rows are split by candle date)
@@ -54,6 +56,7 @@ DATASETS = {
     'indices': ('ohlc-nse-indices.csv', True),
     'topStocks': ('filter2_minervini_filter_list.csv', False),
     'breakouts': ('filter3_above_pivot.csv', False),
+    'breakoutAcceptance': ('filter4_profile_acceptance.csv', False),
 }
 
 # Instrument list with index membership flags (kept up to date by update_index_membership.py)

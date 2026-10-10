@@ -32,6 +32,10 @@ SAMPLE_CSVS = {
         'trading_symbol,name,instrument_token,currentClose,current_high,latestPivot,lastPivotDate,currentDate,above_pivot_by,above_pivot_percent,pivot_count\n'
         'ABC,ABC,101,111,112,108,2026-09-20,2026-10-06,3,2.78,12\n'
     ),
+    'filter4_profile_acceptance.csv': (
+        'trading_symbol,instrument_token,currentClose,latestPivot,breakoutLevel,poc,vah,val,verdict,score,sessionDate\n'
+        'ABC,101,111,108,108,109.5,111,108.2,ACCEPTED,322,2026-10-06\n'
+    ),
 }
 
 
@@ -55,6 +59,7 @@ class BuildDocumentsTest(unittest.TestCase):
             'screenerSnapshot-allStocks-2026-10-05',
             'screenerSnapshot-allStocks-2026-10-06',
             'screenerSnapshot-allStocksList',
+            'screenerSnapshot-breakoutAcceptance-2026-10-06',
             'screenerSnapshot-breakouts-2026-10-06',
             'screenerSnapshot-topStocks-2026-10-06',
         ])
@@ -81,7 +86,8 @@ class MarketDateTest(unittest.TestCase):
         # A Saturday run screens Friday's candles and must overwrite Friday, not add a new day
         with tempfile.TemporaryDirectory() as results_dir:
             write_sample_results(results_dir)
-            for suffix in ('filter2_minervini_filter_list.csv', 'filter3_above_pivot.csv'):
+            for suffix in ('filter2_minervini_filter_list.csv', 'filter3_above_pivot.csv',
+                           'filter4_profile_acceptance.csv'):
                 os.rename(
                     os.path.join(results_dir, f'{RUN_DATE}_{suffix}'),
                     os.path.join(results_dir, f'2026-10-10_{suffix}'),
@@ -90,6 +96,7 @@ class MarketDateTest(unittest.TestCase):
 
         self.assertIn('screenerSnapshot-topStocks-2026-10-06', documents)
         self.assertIn('screenerSnapshot-breakouts-2026-10-06', documents)
+        self.assertIn('screenerSnapshot-breakoutAcceptance-2026-10-06', documents)
         self.assertNotIn('screenerSnapshot-topStocks-2026-10-10', documents)
         self.assertEqual(documents['screenerSnapshot-topStocks-2026-10-06']['runDate'], '2026-10-10')
 
