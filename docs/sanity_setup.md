@@ -21,6 +21,7 @@ Every CSV becomes `screenerSnapshot` documents, one per dataset per date, with a
 | `indices` | `<date>_ohlc-nse-indices.csv` (Filter1) | candle date | MARKET_OVERVIEW |
 | `topStocks` | `<date>_filter2_minervini_filter_list.csv` (Filter2) | run date | TOP_STOCKS |
 | `breakouts` | `<date>_filter3_above_pivot.csv` (Filter3) | run date | BREAKOUT_STOCKS |
+| `breakoutAcceptance` | `<date>_filter4_profile_acceptance.csv` (Filter4: Market Profile verdict ACCEPTED/TESTING/REJECTED per breakout) | market day (`sessionDate`) | none yet |
 | `allStocksList` | `src/static/instruments/nse-other-instruments.csv` (symbol, name and true/false `nifty_50`, `nifty_bank`, `nifty_smallcap_50`, `nifty_midcap_50`) | single doc `screenerSnapshot-allStocksList`, replaced each upload | index membership for the heat map |
 
 Fields: `dataset`, `date` (YYYY-MM-DD), `runDate`, `generatedAt`, `rowCount`, and `rows`, an array with one object per CSV row. Row fields keep the CSV column names, except `52wh`/`52wl`, which become `week52High`/`week52Low` (Sanity field names cannot start with a digit). Row `date` values are trimmed to YYYY-MM-DD.
