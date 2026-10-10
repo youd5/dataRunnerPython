@@ -22,7 +22,8 @@ import pandas as pd
 import backtest_acceptance
 import history_cache
 import intraday_cache
-from filter4 import Filter4, acceptance_verdict
+from filter4 import Filter4, acceptance_verdict, evaluate_breakout
+from market_profile import session_profiles
 from history_cache import HistoryCache
 from intraday_cache import IntradayCache, fetch_intraday, normalise_bars
 
@@ -140,6 +141,21 @@ class VerdictTest(unittest.TestCase):
         p = self.profile(close=100.3, selling_tail=3)
         self.assertEqual(acceptance_verdict(p, 'overlapping', 100), 'REJECTED')
         self.assertEqual(acceptance_verdict(dict(p, close=103), 'overlapping', 100), 'TESTING')
+
+
+class BreakoutLevelTest(unittest.TestCase):
+    def test_level_is_the_pivot_even_below_a_balance_bracket(self):
+        # 20 days falling to 114, then 8 days balancing at 100-104; the pivot (100) is below the bracket top
+        ranges = [(130 - i, 133 - i) for i in range(20)] + [(100, 104), (101, 103.5), (100.5, 104), (100, 103),
+                                                            (101, 104), (100.2, 103.8), (100.5, 103), (101, 104)]
+        ranges.append((101, 103))
+        daily = pd.DataFrame({'date': pd.bdate_range('2026-08-03', periods=len(ranges)),
+                              'high': [h for _, h in ranges], 'low': [l for l, _ in ranges],
+                              'close': [h - 0.5 for _, h in ranges]})
+        profiles = session_profiles(normalise_bars(accepted_stock()), 0.05)
+        row = evaluate_breakout(profiles, daily, pivot_high=100)
+        self.assertEqual(row['breakoutLevel'], 100)
+        self.assertGreater(row['bracketHigh'], 100)
 
 
 class Filter4RunTest(unittest.TestCase):

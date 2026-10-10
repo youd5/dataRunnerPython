@@ -7,8 +7,9 @@ For each stock above its last pivot (Filter3), build a Market Profile of the las
 from Kite 30-minute candles (one request per stock) and check whether value has moved above the
 breakout level, or whether price only poked above it and was rejected.
 
-Breakout level L = the Filter3 pivot high, or the top of the balance bracket the stock is leaving
-if that is higher. Verdict:
+Breakout level L = the Filter3 pivot high. (Using the top of the balance bracket instead, when
+higher, made the verdicts worse in the 2026-10-10 backtest, so the bracket is reported only.)
+Verdict:
 - ACCEPTED: today's value area is above L (VAL >= L), or the POC is above L with value
   migrating higher
 - REJECTED: the close or POC is below L, or the session left a selling tail / poor high and
@@ -78,7 +79,7 @@ def evaluate_breakout(profiles: List[Dict[str, Any]], daily: pd.DataFrame, pivot
     bracket = detect_balance(daily) if daily is not None and len(daily) else None
     balance = breakout_from_balance(daily, bracket)
     bracket_high = bracket['bracket_high'] if bracket else None
-    level = max(pivot_high, bracket_high) if bracket_high is not None else pivot_high
+    level = pivot_high
     verdict = acceptance_verdict(today, migration['today'], level)
 
     naked = naked_pocs(profiles)
