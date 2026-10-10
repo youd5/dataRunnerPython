@@ -16,6 +16,11 @@ Document ids are deterministic (`screenerSnapshot-<dataset>-<date>`) and written
 createOrReplace, so re-running a day overwrites that day instead of duplicating it. Ids must
 not contain dots: Sanity treats dotted ids as private, even in a public dataset.
 
+topStocks and breakouts are dated by the market day in their rows, not the day the script ran,
+so a run on a weekend, a holiday or after midnight overwrites the market day it screened. Any
+other document of the same dataset holding that market day is deleted, which also cleans up
+duplicates left by earlier runs: re-running the upload is enough to fix them.
+
 Configuration comes from the root .env:
   SANITY_PROJECT_ID, SANITY_DATASET (default: production), SANITY_API_TOKEN (write token),
   SANITY_API_VERSION (default: 2025-02-19)
@@ -36,6 +41,12 @@ import requests
 from kite_service import RESULTS_DIR  # also loads the root .env
 
 DOCUMENT_TYPE = 'screenerSnapshot'
+
+# Row column holding the market day of each run-date dataset
+MARKET_DATE_COLUMNS = {
+    'topStocks': 'date',
+    'breakouts': 'currentDate',
+}
 
 # dataset -> (CSV file suffix, whether rows are split by candle date)
 DATASETS = {
@@ -96,6 +107,13 @@ def csv_to_rows(csv_path):
     return rows
 
 
+def market_date(dataset, rows, run_date):
+    """Latest market day in a run-date dataset's rows, or the run date if the rows have none."""
+    column = MARKET_DATE_COLUMNS.get(dataset)
+    dates = [str(row[column])[:10] for row in rows if column and row.get(column)]
+    return max(dates) if dates else run_date
+
+
 def build_documents(run_date, results_dir=RESULTS_DIR):
     """Build the Sanity documents for every results CSV of a run date."""
     generated_at = datetime.now(timezone.utc).isoformat()
@@ -113,7 +131,7 @@ def build_documents(run_date, results_dir=RESULTS_DIR):
             for row in rows:
                 groups.setdefault(row['date'], []).append(row)
         else:
-            groups = {run_date: rows}
+            groups = {market_date(dataset, rows, run_date): rows}
 
         for date, date_rows in sorted(groups.items()):
             for index, row in enumerate(date_rows):
@@ -205,17 +223,31 @@ class SanityUploader:
             # Earlier uploads used dotted ids, which the public website cannot read; drop them
             legacy_id = f"{DOCUMENT_TYPE}.{document['dataset']}.{document['date']}"
             mutation = [{'createOrReplace': document}, {'delete': {'id': legacy_id}}]
+            if document['dataset'] in MARKET_DATE_COLUMNS:
+                mutation.append(duplicates_delete(document))
             size = len(json.dumps(mutation))
             if batch and batch_bytes + size > MAX_REQUEST_BYTES:
                 self._post(batch)
-                written += len(batch) // 2
+                written += sum(1 for m in batch if 'createOrReplace' in m)
                 batch, batch_bytes = [], 0
             batch.extend(mutation)
             batch_bytes += size
         if batch:
             self._post(batch)
-            written += len(batch) // 2
+            written += sum(1 for m in batch if 'createOrReplace' in m)
         return written
+
+
+def duplicates_delete(document):
+    """Mutation deleting other documents of the dataset that hold the same market day."""
+    column = MARKET_DATE_COLUMNS[document['dataset']]
+    return {'delete': {
+        'query': (
+            f'*[_type == "{DOCUMENT_TYPE}" && dataset == $dataset && _id != $id'
+            f' && (date == $date || rows[0].{column} == $date)]'
+        ),
+        'params': {'dataset': document['dataset'], 'id': document['_id'], 'date': document['date']},
+    }}
 
 
 def push_results_to_sanity(run_date=None, results_dir=RESULTS_DIR):

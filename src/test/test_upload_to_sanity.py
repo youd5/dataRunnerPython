@@ -54,6 +54,7 @@ class BuildDocumentsTest(unittest.TestCase):
         self.assertEqual(sorted(self.documents), [
             'screenerSnapshot-allStocks-2026-10-05',
             'screenerSnapshot-allStocks-2026-10-06',
+            'screenerSnapshot-allStocksList',
             'screenerSnapshot-breakouts-2026-10-06',
             'screenerSnapshot-topStocks-2026-10-06',
         ])
@@ -73,6 +74,27 @@ class BuildDocumentsTest(unittest.TestCase):
         self.assertNotIn('52wh', row)
         self.assertIs(row['new_52_week_high'], True)
         self.assertIsInstance(row['instrument_token'], int)
+
+
+class MarketDateTest(unittest.TestCase):
+    def test_weekend_run_is_dated_by_market_day(self):
+        # A Saturday run screens Friday's candles and must overwrite Friday, not add a new day
+        with tempfile.TemporaryDirectory() as results_dir:
+            write_sample_results(results_dir)
+            for suffix in ('filter2_minervini_filter_list.csv', 'filter3_above_pivot.csv'):
+                os.rename(
+                    os.path.join(results_dir, f'{RUN_DATE}_{suffix}'),
+                    os.path.join(results_dir, f'2026-10-10_{suffix}'),
+                )
+            documents = {d['_id']: d for d in build_documents('2026-10-10', results_dir)}
+
+        self.assertIn('screenerSnapshot-topStocks-2026-10-06', documents)
+        self.assertIn('screenerSnapshot-breakouts-2026-10-06', documents)
+        self.assertNotIn('screenerSnapshot-topStocks-2026-10-10', documents)
+        self.assertEqual(documents['screenerSnapshot-topStocks-2026-10-06']['runDate'], '2026-10-10')
+
+    def test_falls_back_to_run_date_without_row_dates(self):
+        self.assertEqual(upload_to_sanity.market_date('topStocks', [{'date': None}], '2026-10-10'), '2026-10-10')
 
 
 class UploadTest(unittest.TestCase):
@@ -95,6 +117,17 @@ class UploadTest(unittest.TestCase):
             {'delete': {'id': 'screenerSnapshot.allStocks.2026-10-06'}},
             {'createOrReplace': documents[1]},
             {'delete': {'id': 'screenerSnapshot.topStocks.2026-10-06'}},
+            {'delete': {
+                'query': (
+                    '*[_type == "screenerSnapshot" && dataset == $dataset && _id != $id'
+                    ' && (date == $date || rows[0].date == $date)]'
+                ),
+                'params': {
+                    'dataset': 'topStocks',
+                    'id': 'screenerSnapshot-topStocks-2026-10-06',
+                    'date': '2026-10-06',
+                },
+            }},
         ]})
 
     def test_upload_batches_large_payloads(self):
