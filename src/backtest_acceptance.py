@@ -12,8 +12,11 @@ before d-5 count (exactly what Filter3 would have seen on d), and profiles and b
 use data up to d only.
 
 Daily candles come from Filter1's latest history cache (results/history/<date>_daily.pkl); run
-Filter1 first. Filter2's trend template is not applied: a year of history leaves too few days
-with a full 245-session lookback.
+Filter1 first. Each signal gets a trendTemplate column: whether Filter2's Minervini conditions held
+on the signal day (rolling averages and highs/lows use past data only). A year of history leaves
+too few days with the full 245-session lookback, so pass --long-history to fetch two years of
+daily candles (one more Kite call per stock, cached); the summary is then also printed for the
+signals that passed the trend template, which is what Filter4 sees in the live pipeline.
 
 Universe:
   --universe filter1 (default)  every stock in the history cache: one Kite call each, ~3/s
@@ -21,7 +24,7 @@ Universe:
   --limit N                     only the first N stocks
 
 Usage:
-  python src/backtest_acceptance.py [--universe filter1|filter2] [--limit N] [--all-days]
+  python src/backtest_acceptance.py [--universe filter1|filter2] [--limit N] [--all-days] [--long-history]
 """
 
 import argparse
@@ -49,6 +52,7 @@ PIVOT_LOOKBACK = 5
 PROFILE_SESSIONS = 20
 MIN_PROFILE_SESSIONS = 6  # today plus a value-migration window of 5
 HORIZONS = (5, 10, 20)
+LONG_HISTORY_DAYS = 730
 
 
 def load_latest_daily_history(history_dir: str = HISTORY_DIR) -> Dict[int, pd.DataFrame]:
@@ -60,6 +64,41 @@ def load_latest_daily_history(history_dir: str = HISTORY_DIR) -> Dict[int, pd.Da
         saved = pickle.load(f)
     print(f"📦 Using daily history for {len(saved['candles'])} instruments from {paths[-1]}")
     return saved['candles']
+
+
+def fetch_long_daily(kite_service, tokens, run_date: str, days: int = LONG_HISTORY_DAYS,
+                     history_dir: str = HISTORY_DIR) -> Dict[int, pd.DataFrame]:
+    """Two years of daily candles per token, cached at results/history/<date>_daily_long_backtest.pkl."""
+    path = os.path.join(history_dir, f'{run_date}_daily_long_backtest.pkl')
+    cached = {}
+    if os.path.exists(path):
+        with open(path, 'rb') as f:
+            cached = pickle.load(f)
+    missing = [t for t in tokens if t not in cached]
+    if missing:
+        from_date = (pd.Timestamp(run_date) - pd.Timedelta(days=days)).strftime('%Y-%m-%d')
+        print(f"📊 Fetching {days} days of daily candles for {len(missing)} stocks...")
+        for token in missing:
+            response = kite_service.historical_data(
+                instrument_token=token, from_date=from_date, to_date=run_date, interval='day')
+            if response.get('success') and response.get('data'):
+                cached[token] = pd.DataFrame(response['data'])
+        os.makedirs(history_dir, exist_ok=True)
+        with open(path, 'wb') as f:
+            pickle.dump(cached, f)
+        for old in glob.glob(os.path.join(history_dir, '*_daily_long_backtest.pkl')):
+            if old != path:
+                os.remove(old)
+    return cached
+
+
+def trend_template_flags(daily: pd.DataFrame) -> pd.Series:
+    """Filter2's Minervini conditions on each day, using only data up to that day."""
+    close = daily['close']
+    ma_50, ma_150, ma_200 = (close.rolling(n).mean() for n in (50, 150, 200))
+    high_52w, low_52w = close.rolling(245).max(), close.rolling(245).min()
+    return ((close > ma_50) & (ma_50 > ma_150) & (ma_150 > ma_200)
+            & (close >= 1.3 * low_52w) & (close >= 0.75 * high_52w))
 
 
 def find_signals(daily: pd.DataFrame, lookback: int = PIVOT_LOOKBACK, fresh_only: bool = True) -> List[dict]:
@@ -105,6 +144,7 @@ def backtest_stock(symbol: str, token: int, daily: pd.DataFrame, bars: pd.DataFr
     profiles = session_profiles(bars, tick_size)
     position = {p['session']: i for i, p in enumerate(profiles)}
     dates = daily['date'].astype(str).str[:10]
+    trend_template = trend_template_flags(daily)
 
     rows = []
     for signal in find_signals(daily, fresh_only=fresh_only):
@@ -128,6 +168,7 @@ def backtest_stock(symbol: str, token: int, daily: pd.DataFrame, bars: pd.DataFr
             'valueRelationship': verdict['valueRelationship'],
             'higherValueDays': verdict['higherValueDays'],
             'breakoutLevel': verdict['breakoutLevel'],
+            'trendTemplate': bool(trend_template.iloc[d]),
         }
         row.update(forward_outcomes(daily, d))
         rows.append(row)
@@ -152,7 +193,8 @@ def summarise(results: pd.DataFrame) -> pd.DataFrame:
 
 
 def run_backtest(kite_service, universe: str = 'filter1', limit: Optional[int] = None,
-                 fresh_only: bool = True, output_dir: Optional[str] = None) -> pd.DataFrame:
+                 fresh_only: bool = True, output_dir: Optional[str] = None,
+                 long_history: bool = False) -> pd.DataFrame:
     history = load_latest_daily_history()
     if not history:
         print("❌ No daily history cache found; run Filter1 first")
@@ -181,6 +223,7 @@ def run_backtest(kite_service, universe: str = 'filter1', limit: Optional[int] =
     bars_by_token = fetch_intraday(kite_service, [t for _, t in stocks],
                                    calendar_days=MAX_CALENDAR_DAYS[INTRADAY_INTERVAL], kind='backtest')
     tick_sizes = load_tick_sizes()
+    long_daily = fetch_long_daily(kite_service, [t for _, t in stocks], run_date) if long_history else {}
 
     rows = []
     for symbol, token in stocks:
@@ -188,7 +231,8 @@ def run_backtest(kite_service, universe: str = 'filter1', limit: Optional[int] =
         if bars is None or bars.empty:
             continue
         try:
-            rows.extend(backtest_stock(symbol, token, history[token], bars,
+            daily = long_daily.get(token, history[token])
+            rows.extend(backtest_stock(symbol, token, daily, bars,
                                        tick_sizes.get(token, 0.05), fresh_only))
         except Exception as e:
             print(f"❌ Error backtesting {symbol}: {e}")
@@ -205,6 +249,10 @@ def run_backtest(kite_service, universe: str = 'filter1', limit: Optional[int] =
     summary.to_csv(os.path.join(output_dir, f'acceptance_{run_date}_summary.csv'))
     print(f"\n💾 {len(results)} signals saved to {output_dir}/acceptance_{run_date}.csv\n")
     print(summary.to_string())
+    passed = results[results['trendTemplate']]
+    if len(passed):
+        print(f"\nSignals that also passed Filter2's trend template ({len(passed)}):")
+        print(summarise(passed).to_string())
     return results
 
 
@@ -214,8 +262,11 @@ def main():
     parser.add_argument('--limit', type=int, default=None)
     parser.add_argument('--all-days', action='store_true',
                         help='judge every day above the pivot, not just the first')
+    parser.add_argument('--long-history', action='store_true',
+                        help="fetch two years of daily candles so Filter2's trend template can be checked")
     args = parser.parse_args()
-    run_backtest(KiteService(), args.universe, args.limit, fresh_only=not args.all_days)
+    run_backtest(KiteService(), args.universe, args.limit, fresh_only=not args.all_days,
+                 long_history=args.long_history)
 
 
 if __name__ == '__main__':

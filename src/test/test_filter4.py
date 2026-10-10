@@ -214,6 +214,32 @@ class BacktestTest(unittest.TestCase):
         self.assertEqual(signals[0]['pivot_high'], 110)
         self.assertEqual(len(backtest_acceptance.find_signals(daily, fresh_only=False)), 2)
 
+    def test_trend_template_matches_filter2_on_each_day(self):
+        from filter2 import Filter2
+        import random
+        rng = random.Random(3)
+        closes, price = [], 100.0
+        for _ in range(400):
+            price *= 1 + 0.002 + rng.gauss(0, 0.015)
+            closes.append(price)
+        flags = backtest_acceptance.trend_template_flags(pd.DataFrame({'close': closes}))
+        filter2 = Filter2.__new__(Filter2)
+        for end in (250, 300, 350, 400):
+            df = filter2.calculate_moving_averages_and_52wh_52wl(pd.DataFrame({'close': closes[:end]}))
+            self.assertEqual(flags.iloc[end - 1], filter2.is_minervini_condition_fulfilled(df))
+        self.assertTrue(flags.any())
+        self.assertFalse(flags.iloc[:244].any())  # not enough history for a 52-week range
+
+    def test_long_daily_is_fetched_once_and_cached(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            kite = mock.Mock()
+            kite.historical_data.return_value = {'success': True, 'data': [{'date': '2026-10-09', 'close': 1}]}
+            backtest_acceptance.fetch_long_daily(kite, [1], '2026-10-10', history_dir=tmp)
+            self.assertEqual(kite.historical_data.call_args.kwargs['from_date'], '2024-10-10')
+            backtest_acceptance.fetch_long_daily(kite, [1, 2], '2026-10-10', history_dir=tmp)
+            tokens = [c.kwargs['instrument_token'] for c in kite.historical_data.call_args_list]
+            self.assertEqual(tokens, [1, 2])
+
     def test_backtest_stock_scores_signals_with_forward_returns(self):
         days = [d.strftime('%Y-%m-%d') for d in pd.bdate_range('2026-06-01', periods=40)]
         candles = []
